@@ -1,0 +1,24 @@
+modLoader="javafml" #mandatory
+loaderVersion="${loader_version_range}" #mandatory
+license="${mod_license}"
+[[mods]] #mandatory
+modId="nexus" #mandatory
+displayName="Nexus"
+version="0.1.0"
+#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
+#logoFile="examplemod.png" #optional
+authors="Syconn" #optional
+
+description='''${mod_description}'''
+[[dependencies.nexus]] #optional
+    modId="neoforge" #mandatory
+    type="required" #mandatory
+    versionRange="${neo_version_range}" #mandatory
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.nexus]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
