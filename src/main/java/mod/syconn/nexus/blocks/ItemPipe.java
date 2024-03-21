@@ -1,19 +1,22 @@
 package mod.syconn.nexus.blocks;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
 import mod.syconn.nexus.util.ConnectionType;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,11 +26,13 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.ScheduledTick;
+import net.neoforged.fml.loading.log4j.ForgeHighlight;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
@@ -45,13 +50,12 @@ public class ItemPipe extends Block implements SimpleWaterloggedBlock, EntityBlo
     public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
 
     private static VoxelShape[] shapeCache = null;
-
-    private static final VoxelShape SHAPE_CABLE_NORTH = Shapes.box(.4, .4, 0, .6, .6, .4);
-    private static final VoxelShape SHAPE_CABLE_SOUTH = Shapes.box(.4, .4, .6, .6, .6, 1);
-    private static final VoxelShape SHAPE_CABLE_WEST = Shapes.box(0, .4, .4, .4, .6, .6);
-    private static final VoxelShape SHAPE_CABLE_EAST = Shapes.box(.6, .4, .4, 1, .6, .6);
-    private static final VoxelShape SHAPE_CABLE_UP = Shapes.box(.4, .6, .4, .6, 1, .6);
-    private static final VoxelShape SHAPE_CABLE_DOWN = Shapes.box(.4, 0, .4, .6, .4, .6);
+    private static final VoxelShape SHAPE_CABLE_NORTH = Shapes.box(.3, .3, 0, .7, .7, .3);
+    private static final VoxelShape SHAPE_CABLE_SOUTH = Shapes.box(.3, .3, .7, .7, .7, 1);
+    private static final VoxelShape SHAPE_CABLE_WEST = Shapes.box(0, .3, .3, .3, .7, .7);
+    private static final VoxelShape SHAPE_CABLE_EAST = Shapes.box(.7, .3, .3, 1, .7, .7);
+    private static final VoxelShape SHAPE_CABLE_UP = Shapes.box(.3, .5, .3, .7, 1, .7);
+    private static final VoxelShape SHAPE_CABLE_DOWN = Shapes.box(.3, 0, .3, .7, .7, .7);
 
     private static final VoxelShape SHAPE_BLOCK_NORTH = Shapes.box(.2, .2, 0, .8, .8, .1);
     private static final VoxelShape SHAPE_BLOCK_SOUTH = Shapes.box(.2, .2, .9, .8, .8, 1);
@@ -96,7 +100,7 @@ public class ItemPipe extends Block implements SimpleWaterloggedBlock, EntityBlo
     }
 
     private VoxelShape makeShape(ConnectionType north, ConnectionType south, ConnectionType west, ConnectionType east, ConnectionType up, ConnectionType down) {
-        VoxelShape shape = Shapes.box(.4, .4, .4, .6, .6, .6);
+        VoxelShape shape = Shapes.box(.3, .3, .3, .7, .7, .7);
         shape = combineShape(shape, north, SHAPE_CABLE_NORTH, SHAPE_BLOCK_NORTH);
         shape = combineShape(shape, south, SHAPE_CABLE_SOUTH, SHAPE_BLOCK_SOUTH);
         shape = combineShape(shape, west, SHAPE_CABLE_WEST, SHAPE_BLOCK_WEST);
@@ -158,32 +162,25 @@ public class ItemPipe extends Block implements SimpleWaterloggedBlock, EntityBlo
         }
     }
 
-    // Return the connector type for the given position and facing direction
     private ConnectionType getConnectorType(BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         if (block instanceof ItemPipe) {
             return ConnectionType.CABLE;
-        } else if (isConnectable(world, connectorPos, facing)) {
+        }else if (isConnectable(world, connectorPos, facing)) {
             return ConnectionType.OUTPUT; // TODO MAKE INPUT/OUTPUT
         } else {
             return ConnectionType.NONE;
         }
     }
 
-    // Return true if the block at the given position is connectable to a cable. This is the
-    // case if the block supports NeoForge energy
     public static boolean isConnectable(BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
-        if (state.isAir()) {
-            return false;
-        }
         BlockEntity te = world.getBlockEntity(pos);
-        if (te == null) {
-            return false;
-        }
+        if (state.isAir()) return false;
+        if (te == null) return false;
         return te.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, pos, null) != null; //TODO ITEMS
     }
 
@@ -192,7 +189,6 @@ public class ItemPipe extends Block implements SimpleWaterloggedBlock, EntityBlo
         super.createBlockStateDefinition(builder);
         builder.add(BlockStateProperties.WATERLOGGED, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
-
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -212,13 +208,37 @@ public class ItemPipe extends Block implements SimpleWaterloggedBlock, EntityBlo
         return state.setValue(NORTH, north).setValue(SOUTH, south).setValue(WEST, west).setValue(EAST, east).setValue(UP, up).setValue(DOWN, down);
     }
 
-    @Nonnull
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
-    @Nullable
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
+        if (!pLevel.isClientSide() && !(pNewState.getBlock() instanceof ItemPipe)) PipeNetworks.get((ServerLevel) pLevel).removePipe(pLevel, pPos);
+        super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
+    }
+
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pMovedByPiston) {
+        if (!pLevel.isClientSide() && pLevel.getBlockEntity(pPos) instanceof ItemPipeBE be) be.setUUID(PipeNetworks.get((ServerLevel) pLevel).addPipe(pLevel, pPos));
+    }
+
+    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide()) {
+            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE)) {
+                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(pLevel.getBlockEntity(pPos, Registration.ITEM_PIPE_BE.get()).get().getUUID(), pLevel)) {
+                    pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
+                }
+            }
+            else {
+                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(pLevel.getBlockEntity(pPos, Registration.ITEM_PIPE_BE.get()).get().getUUID(), pLevel)) {
+                    pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
+                }
+            }
+            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(pLevel.getBlockEntity(pPos, Registration.ITEM_PIPE_BE.get()).get().getUUID(), pLevel);
+        }
+        return InteractionResult.PASS;
+    }
+
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return new ItemPipeBE(pPos, pState);
     }

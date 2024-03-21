@@ -1,14 +1,15 @@
 package mod.syconn.nexus;
 
-import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
 import mod.syconn.nexus.blocks.ItemPipe;
 import mod.syconn.nexus.blocks.NexusBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -36,5 +37,9 @@ public class Registration {
         {
             ITEMS.getEntries().forEach(i -> event.accept(i.get()));
         }
+    }
+
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+
     }
 }

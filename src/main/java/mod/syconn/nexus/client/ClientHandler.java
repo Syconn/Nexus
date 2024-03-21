@@ -1,7 +1,7 @@
 package mod.syconn.nexus.client;
 
 import mod.syconn.nexus.Nexus;
-import mod.syconn.nexus.client.model.PipeModelLoader;
+import mod.syconn.nexus.client.loader.PipeModelLoader;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;

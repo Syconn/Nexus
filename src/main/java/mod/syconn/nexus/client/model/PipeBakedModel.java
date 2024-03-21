@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -36,7 +37,8 @@ public class PipeBakedModel implements IDynamicBakedModel {
 
     private final IGeometryBakingContext context;
     private final boolean facade;
-
+    private final double size;
+    private final String[] locations;
     private TextureAtlasSprite spriteConnector;
     private TextureAtlasSprite spriteNoneCable;
     private TextureAtlasSprite spriteNormalCable;
@@ -46,10 +48,7 @@ public class PipeBakedModel implements IDynamicBakedModel {
     private TextureAtlasSprite spriteCrossCable;
     private TextureAtlasSprite spriteSide;
 
-    static {
-        // For all possible patterns we define the sprite to use and the rotation. Note that each
-        // pattern looks at the existance of a cable section for each of the four directions
-        // excluding the one we are looking at.
+    static { // For all possible patterns we define the sprite to use and the rotation
         PipePatterns.PATTERNS.put(PipePatterns.Pattern.of(false, false, false, false), PipePatterns.QuadSetting.of(SPRITE_NONE, 0));
         PipePatterns.PATTERNS.put(PipePatterns.Pattern.of(true, false, false, false), PipePatterns.QuadSetting.of(SPRITE_END, 3));
         PipePatterns.PATTERNS.put(PipePatterns.Pattern.of(false, true, false, false), PipePatterns.QuadSetting.of(SPRITE_END, 0));
@@ -68,27 +67,28 @@ public class PipeBakedModel implements IDynamicBakedModel {
         PipePatterns.PATTERNS.put(PipePatterns.Pattern.of(true, true, true, true), PipePatterns.QuadSetting.of(SPRITE_CROSS, 0));
     }
 
-    public PipeBakedModel(IGeometryBakingContext context, boolean facade) {
+    public PipeBakedModel(IGeometryBakingContext context, boolean facade, double size, String[] locations) {
         this.context = context;
         this.facade = facade;
+        this.size = size;
+        this.locations = locations;
     }
 
     private void initTextures() {
         if (spriteConnector == null) {
-            spriteConnector = getTexture("block/pipe/connector");
-            spriteNormalCable = getTexture("block/pipe/normal");
-            spriteNoneCable = getTexture("block/pipe/none");
-            spriteEndCable = getTexture("block/pipe/end");
-            spriteCornerCable = getTexture("block/pipe/corner");
-            spriteThreeCable = getTexture("block/pipe/three");
-            spriteCrossCable = getTexture("block/pipe/cross");
-            spriteSide = getTexture("block/pipe/side");
+            spriteConnector = getTexture(0);
+            spriteNormalCable = getTexture(1);
+            spriteNoneCable = getTexture(2);
+            spriteEndCable = getTexture(3);
+            spriteCornerCable = getTexture(4);
+            spriteThreeCable = getTexture(5);
+            spriteCrossCable = getTexture(6);
+            spriteSide = getTexture(7);
         }
     }
 
-    // All textures are baked on a big texture atlas. This function gets the texture from that atlas
-    private TextureAtlasSprite getTexture(String path) {
-        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation(Nexus.MODID, path));
+    private TextureAtlasSprite getTexture(int i) {
+        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation(Nexus.MODID, locations[i]));
     }
 
     private TextureAtlasSprite getSpriteNormal(PipePatterns.SpriteIdx idx) {
@@ -113,10 +113,8 @@ public class PipeBakedModel implements IDynamicBakedModel {
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType layer) {
         initTextures();
         List<BakedQuad> quads = new ArrayList<>();
-        if (side == null && (layer == null || layer.equals(RenderType.solid()))) {
-            // Called with the blockstate from our block. Here we get the values of the six properties and pass that to
-            // our baked model implementation. If state == null we are called from the inventory and we use the default
-            // values for the properties
+
+        if (side == null) {
             ConnectionType north, south, west, east, up, down;
             if (state != null) {
                 north = state.getValue(ItemPipe.NORTH);
@@ -126,27 +124,24 @@ public class PipeBakedModel implements IDynamicBakedModel {
                 up = state.getValue(ItemPipe.UP);
                 down = state.getValue(ItemPipe.DOWN);
             } else {
-                // If we are a facade and we are an item then we render as the 'side' texture as a full block
-//                if (facade) {
-//                    quads.add(quad(v(0, 1, 1), v(1, 1, 1), v(1, 1, 0), v(0, 1, 0), spriteSide));
-//                    quads.add(quad(v(0, 0, 0), v(1, 0, 0), v(1, 0, 1), v(0, 0, 1), spriteSide));
-//                    quads.add(quad(v(1, 0, 0), v(1, 1, 0), v(1, 1, 1), v(1, 0, 1), spriteSide));
-//                    quads.add(quad(v(0, 0, 1), v(0, 1, 1), v(0, 1, 0), v(0, 0, 0), spriteSide));
-//                    quads.add(quad(v(0, 1, 0), v(1, 1, 0), v(1, 0, 0), v(0, 0, 0), spriteSide));
-//                    quads.add(quad(v(0, 0, 1), v(1, 0, 1), v(1, 1, 1), v(0, 1, 1), spriteSide));
-//                    return quads;
-//                }
+                if (facade) {
+                    quads.add(quad(v(0, 1, 1), v(1, 1, 1), v(1, 1, 0), v(0, 1, 0), spriteSide));
+                    quads.add(quad(v(0, 0, 0), v(1, 0, 0), v(1, 0, 1), v(0, 0, 1), spriteSide));
+                    quads.add(quad(v(1, 0, 0), v(1, 1, 0), v(1, 1, 1), v(1, 0, 1), spriteSide));
+                    quads.add(quad(v(0, 0, 1), v(0, 1, 1), v(0, 1, 0), v(0, 0, 0), spriteSide));
+                    quads.add(quad(v(0, 1, 0), v(1, 1, 0), v(1, 0, 0), v(0, 0, 0), spriteSide));
+                    quads.add(quad(v(0, 0, 1), v(1, 0, 1), v(1, 1, 1), v(0, 1, 1), spriteSide));
+                    return quads;
+                }
                 north = south = west = east = up = down = NONE;
             }
 
             TextureAtlasSprite spriteCable = spriteNormalCable;
             Function<PipePatterns.SpriteIdx, TextureAtlasSprite> spriteGetter = this::getSpriteNormal;
-            double o = .4;      // Thickness of the cable. .0 would be full block, .5 is infinitely thin.
+            double o = size;      // Thickness of the cable. .0 would be full block, .5 is infinitely thin.
             double p = .1;      // Thickness of the connector as it is put on the connecting block
             double q = .2;      // The wideness of the connector
 
-            // For each side we either cap it off if there is no similar block adjacent on that side
-            // or else we extend so that we touch the adjacent block:
             if (up == CABLE) {
                 quads.add(quad(v(1 - o, 1, o), v(1 - o, 1, 1 - o), v(1 - o, 1 - o, 1 - o), v(1 - o, 1 - o, o), spriteCable));
                 quads.add(quad(v(o, 1, 1 - o), v(o, 1, o), v(o, 1 - o, o), v(o, 1 - o, 1 - o), spriteCable));
@@ -288,17 +283,17 @@ public class PipeBakedModel implements IDynamicBakedModel {
 
         // Render the facade if we have one in addition to the cable above. Note that the facade comes from the model data property
         // (FACADEID)
-//        BlockState facadeId = extraData.get(CableBlock.FACADEID);
-//        if (facadeId != null) {
-//            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
-//            ChunkRenderTypeSet renderTypes = model.getRenderTypes(facadeId, rand, extraData);
-//            if (layer == null || renderTypes.contains(layer)) { // always render in the null layer or the block-breaking textures don't show up
-//                try {
-//                    quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
-//                } catch (Exception ignored) {
-//                }
-//            }
-//        }
+        BlockState facadeId = extraData.get(ItemPipe.FACADEID);
+        if (facadeId != null) {
+            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
+            ChunkRenderTypeSet renderTypes = model.getRenderTypes(facadeId, rand, extraData);
+            if (layer == null || renderTypes.contains(layer)) { // always render in the null layer or the block-breaking textures don't show up
+                try {
+                    quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
+                } catch (Exception ignored) {
+                }
+            }
+        }
 
         return quads;
     }
@@ -318,11 +313,10 @@ public class PipeBakedModel implements IDynamicBakedModel {
         return false;
     }
 
-    // Because we can potentially mimic other blocks we need to render on all render types
     @Override
     @Nonnull
     public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-        return ChunkRenderTypeSet.all();
+        return ChunkRenderTypeSet.of(RenderType.cutoutMipped());
     }
 
     @Nonnull
@@ -331,8 +325,6 @@ public class PipeBakedModel implements IDynamicBakedModel {
         return spriteNormalCable == null ? Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply((new ResourceLocation("minecraft", "missingno"))) : spriteNormalCable;
     }
 
-    // To let our cable/facade render correctly as an item (both in inventory and on the ground) we
-    // get the correct transforms from the context
     @Nonnull
     @Override
     public ItemTransforms getTransforms() {

@@ -1,0 +1,17 @@
+{
+  "parent": "minecraft:block/cube",
+  "render_type": "minecraft:cutout_mipped",
+  "facade": false,
+  "loader": "nexus:pipeloader",
+  "locations": [
+    "block/itempipe/connector",
+    "block/itempipe/normal",
+    "block/itempipe/none",
+    "block/itempipe/end",
+    "block/itempipe/corner",
+    "block/itempipe/three",
+    "block/itempipe/cross",
+    "block/itempipe/side"
+  ],
+  "size": 0.3
+}

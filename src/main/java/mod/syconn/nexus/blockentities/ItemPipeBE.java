@@ -1,35 +1,40 @@
 package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class ItemPipeBE extends BlockEntity {
+import java.util.UUID;
 
-    protected ItemPipeBE(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
-    }
+public class ItemPipeBE extends SavableBlockEntity {
+
+    private UUID uuid = null;
 
     public ItemPipeBE(BlockPos pos, BlockState state) {
         super(Registration.ITEM_PIPE_BE.get(), pos, state);
     }
 
-    public void markDirty() {
-//        traverse(worldPosition, cable -> cable.outputs = null);
-    }
-
     public void tickServer() {
-
     }
 
-//    // This is a generic function that will traverse all cables connected to this cable
-//    // and call the given consumer for each cable.
-//    private void traverse(BlockPos pos, Consumer<CableBlockEntity> consumer) {
-//        Set<BlockPos> traversed = new HashSet<>();
-//        traversed.add(pos);
-//        consumer.accept(this);
-//        traverse(pos, traversed, consumer);
-//    }
+    public void setUUID(UUID uuid) {
+        this.uuid = uuid;
+        markDirty();
+    }
+
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    protected void saveClientData(CompoundTag tag) {
+        if(uuid != null) tag.putUUID("uuid", uuid);
+    }
+
+    protected void loadClientData(CompoundTag tag) {
+        if (tag.contains("uuid")) uuid = tag.getUUID("uuid");
+    }
 }

@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "nexus:block/pipe"
+      "model": "nexus:block/item_pipe"
     }
   }
 }

@@ -3,6 +3,7 @@ package mod.syconn.nexus;
 import mod.syconn.nexus.datagen.BlockStateGen;
 import mod.syconn.nexus.datagen.ItemModelGen;
 import mod.syconn.nexus.datagen.LangGen;
+import mod.syconn.nexus.network.Channel;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -29,6 +30,8 @@ public class Nexus
     {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::gatherData);
+        modEventBus.addListener(Registration::registerCapabilities);
+        modEventBus.addListener(Channel::onRegisterPayloadHandler);
         modEventBus.addListener(Registration::addCreative);
 
         Registration.BLOCKS.register(modEventBus);
