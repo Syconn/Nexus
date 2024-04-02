@@ -5,12 +5,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
+import mod.syconn.nexus.blocks.InterfaceBlock;
 import mod.syconn.nexus.client.loader.PipeModelLoader;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.CustomLoaderBuilder;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.neoforged.neoforge.client.model.generators.*;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.Arrays;
@@ -24,16 +27,26 @@ public class BlockStateGen extends BlockStateProvider {
     protected void registerStatesAndModels() {
         simpleBlockWithItem(Registration.NEXUS.get(), cubeAll(Registration.NEXUS.get()));
         registerItemCables();
+        registerCableExtensions();
+        registerDynamicStates();
     }
 
-//    private void registerEnergyCables() {
-//        BlockModelBuilder model = models().getBuilder("pipe")
-//                .parent(models().getExistingFile(mcLoc("cube")))
-//                .customLoader((builder, helper) -> new PipeLoaderBuilder(PipeModelLoader.GENERATOR_LOADER, builder, helper, false, .4, new String[]{"block/pipe/connector",
-//                        "block/pipe/normal", "block/pipe/none", "block/pipe/end", "block/pipe/corner", "block/pipe/three", "block/pipe/cross", "block/pipe/side"}))
-//                .end();
-//        simpleBlockWithItem(Registration.ITEM_PIPE.get(), model);
-//    }
+    private void registerDynamicStates() {
+        simpleBlockItem(Registration.INTERFACE.get(), generated(Registration.INTERFACE.get()));
+        getVariantBuilder(Registration.INTERFACE.get()).forAllStates(state -> {
+            Direction direction = state.getValue(InterfaceBlock.FACING);
+            return ConfiguredModel.builder().modelFile(generated(Registration.INTERFACE.get()))
+                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
+                    .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
+        });
+//        simpleBlockItem(Registration.EXTERNAL_STORAGE.get(), generated(Registration.EXTERNAL_STORAGE.get()));
+//        getVariantBuilder(Registration.EXTERNAL_STORAGE.get()).forAllStates(state -> {
+//            Direction direction = state.getValue(InterfaceBlock.FACING);
+//            return ConfiguredModel.builder().modelFile(generated(Registration.EXTERNAL_STORAGE.get()))
+//                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
+//                    .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
+//        });
+    }
 
     private void registerItemCables() {
         BlockModelBuilder model = models().getBuilder("item_pipe")
@@ -45,13 +58,19 @@ public class BlockStateGen extends BlockStateProvider {
         simpleBlockWithItem(Registration.ITEM_PIPE.get(), model);
     }
 
-//    private void registerFacade() {
-//        BlockModelBuilder model = models().getBuilder("facade")
-//                .parent(models().getExistingFile(mcLoc("cube")))
-//                .customLoader((builder, helper) -> new PipeLoaderBuilder(PipeModelLoader.GENERATOR_LOADER, builder, helper, true))
-//                .end();
-////        simpleBlock(Registration.FACADE_BLOCK.get(), model);
-//    }
+    private void registerCableExtensions() {
+        BlockModelBuilder model = models().getBuilder("external_storage")
+                .parent(models().getExistingFile(mcLoc("cube")))
+                .renderType("cutout")
+                .customLoader((builder, helper) -> new PipeLoaderBuilder(PipeModelLoader.GENERATOR_LOADER, builder, helper, false, .3, new String[]{"block/itempipe/connector",
+                        "block/itempipe/normal", "block/itempipe/none", "block/itempipe/end", "block/itempipe/corner", "block/itempipe/three", "block/itempipe/cross", "block/itempipe/side"}))
+                .end();
+        simpleBlockWithItem(Registration.EXTERNAL_STORAGE.get(), model);
+    }
+
+    private ModelFile generated(Block block) {
+        return new ModelFile.UncheckedModelFile(modLoc("block/" + BuiltInRegistries.BLOCK.getKey(block).getPath()));
+    }
 
     public static class PipeLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {
 

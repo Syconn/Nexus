@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "nexus:block/interface",
+      "x": 270
+    },
+    "facing=east": {
+      "model": "nexus:block/interface",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "nexus:block/interface",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "nexus:block/interface"
+    },
+    "facing=up": {
+      "model": "nexus:block/interface",
+      "x": 90
+    },
+    "facing=west": {
+      "model": "nexus:block/interface",
+      "y": 90
+    }
+  }
+}

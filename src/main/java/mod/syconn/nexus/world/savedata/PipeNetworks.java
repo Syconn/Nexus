@@ -1,21 +1,16 @@
 package mod.syconn.nexus.world.savedata;
 
-import mod.syconn.nexus.Registration;
+import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
 import mod.syconn.nexus.util.data.PipeNetwork;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 
 import java.util.*;
 
@@ -23,7 +18,7 @@ public class PipeNetworks extends SavedData {
 
     private Map<UUID, PipeNetwork> pipe_network = new HashMap<>();
     public UUID addPipe(Level level, BlockPos pos) {
-        if (level.getBlockEntity(pos, Registration.ITEM_PIPE_BE.get()).get().getUUID() == null) {
+        if (level.getBlockEntity(pos) instanceof BasePipeBE temp && temp.getUUID() == null) {
             UUID uuid = UUID.randomUUID();
             pipe_network.put(uuid, new PipeNetwork(uuid, pos));
             if (level.getBlockEntity(pos) instanceof ItemPipeBE be) be.setUUID(uuid);
@@ -37,7 +32,7 @@ public class PipeNetworks extends SavedData {
             setDirty();
             return uuid;
         }
-        return level.getBlockEntity(pos, Registration.ITEM_PIPE_BE.get()).get().getUUID();
+        return ((BasePipeBE) level.getBlockEntity(pos)).getUUID();
     }
 
     private UUID newLine(Level level, UUID oldUUID, List<BlockPos> positions) {
@@ -65,14 +60,16 @@ public class PipeNetworks extends SavedData {
     }
 
     public boolean removePipe(Level level, BlockPos pos) {
-        UUID uuid = level.getBlockEntity(pos, Registration.ITEM_PIPE_BE.get()).get().getUUID();
         boolean delete = false;
-        if (pipe_network.containsKey(uuid)) {
-            delete = pipe_network.get(uuid).removePosition(pos);
-            if (delete) pipe_network.remove(uuid);
+        if (level.getBlockEntity(pos) instanceof BasePipeBE be) {
+            UUID uuid = be.getUUID();
+            if (pipe_network.containsKey(uuid)) {
+                delete = pipe_network.get(uuid).removePosition(pos);
+                if (delete) pipe_network.remove(uuid);
+            }
+            validLine(level, uuid);
+            setDirty();
         }
-        validLine(level, uuid);
-        setDirty();
         return delete;
     }
 

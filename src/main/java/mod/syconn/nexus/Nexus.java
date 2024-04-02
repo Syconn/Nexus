@@ -1,8 +1,6 @@
 package mod.syconn.nexus;
 
-import mod.syconn.nexus.datagen.BlockStateGen;
-import mod.syconn.nexus.datagen.ItemModelGen;
-import mod.syconn.nexus.datagen.LangGen;
+import mod.syconn.nexus.datagen.*;
 import mod.syconn.nexus.network.Channel;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -52,7 +50,9 @@ public class Nexus
         var fileHelper = event.getExistingFileHelper();
         var pack = event.getGenerator().getVanillaPack(true);
         pack.addProvider(LangGen::new);
+        pack.addProvider(LootTableGen::new);
         pack.addProvider(pOutput -> new BlockStateGen(pOutput, fileHelper));
         pack.addProvider(pOutput -> new ItemModelGen(pOutput, fileHelper));
+        pack.addProvider(pOutput -> new BlockTagsGen(pOutput, event.getLookupProvider(), fileHelper));
     }
 }

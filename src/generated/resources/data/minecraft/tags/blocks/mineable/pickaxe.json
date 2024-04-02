@@ -1,0 +1,8 @@
+{
+  "values": [
+    "nexus:interface",
+    "nexus:external_storage",
+    "nexus:nexus",
+    "nexus:item_pipe"
+  ]
+}

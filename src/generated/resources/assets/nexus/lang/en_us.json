@@ -1,4 +1,6 @@
 {
+  "block.nexus.external_storage": "External Storage",
+  "block.nexus.interface": "Interface",
   "block.nexus.item_pipe": "Item Pipe",
   "block.nexus.nexus": "Nexus",
   "itemGroup.nexus": "Nexus"

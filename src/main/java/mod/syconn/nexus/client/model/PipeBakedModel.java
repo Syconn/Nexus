@@ -1,7 +1,8 @@
 package mod.syconn.nexus.client.model;
 
 import mod.syconn.nexus.Nexus;
-import mod.syconn.nexus.blocks.ItemPipe;
+import mod.syconn.nexus.blocks.ExternalStorage;
+import mod.syconn.nexus.blocks.PipeAttachmentBlock;
 import mod.syconn.nexus.util.ConnectionType;
 import mod.syconn.nexus.util.PipePatterns;
 import net.minecraft.client.Minecraft;
@@ -15,6 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
@@ -117,12 +119,12 @@ public class PipeBakedModel implements IDynamicBakedModel {
         if (side == null) {
             ConnectionType north, south, west, east, up, down;
             if (state != null) {
-                north = state.getValue(ItemPipe.NORTH);
-                south = state.getValue(ItemPipe.SOUTH);
-                west = state.getValue(ItemPipe.WEST);
-                east = state.getValue(ItemPipe.EAST);
-                up = state.getValue(ItemPipe.UP);
-                down = state.getValue(ItemPipe.DOWN);
+                north = state.getValue(PipeAttachmentBlock.NORTH);
+                south = state.getValue(PipeAttachmentBlock.SOUTH);
+                west = state.getValue(PipeAttachmentBlock.WEST);
+                east = state.getValue(PipeAttachmentBlock.EAST);
+                up = state.getValue(PipeAttachmentBlock.UP);
+                down = state.getValue(PipeAttachmentBlock.DOWN);
             } else {
                 if (facade) {
                     quads.add(quad(v(0, 1, 1), v(1, 1, 1), v(1, 1, 0), v(0, 1, 0), spriteSide));
@@ -283,15 +285,13 @@ public class PipeBakedModel implements IDynamicBakedModel {
 
         // Render the facade if we have one in addition to the cable above. Note that the facade comes from the model data property
         // (FACADEID)
-        BlockState facadeId = extraData.get(ItemPipe.FACADEID);
-        if (facadeId != null) {
+        BlockState facadeId = Blocks.TORCH.defaultBlockState();
+        if (facadeId != null && state != null && state.getBlock() instanceof ExternalStorage) {
             BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
-            ChunkRenderTypeSet renderTypes = model.getRenderTypes(facadeId, rand, extraData);
-            if (layer == null || renderTypes.contains(layer)) { // always render in the null layer or the block-breaking textures don't show up
+            if (side == null) {
                 try {
                     quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored) {}
             }
         }
 
