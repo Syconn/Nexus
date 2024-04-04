@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "nexus:block/external_storage_dummy",
+      "x": 270
+    },
+    "facing=east": {
+      "model": "nexus:block/external_storage_dummy",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "nexus:block/external_storage_dummy",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "nexus:block/external_storage_dummy"
+    },
+    "facing=up": {
+      "model": "nexus:block/external_storage_dummy",
+      "x": 90
+    },
+    "facing=west": {
+      "model": "nexus:block/external_storage_dummy",
+      "y": 90
+    }
+  }
+}

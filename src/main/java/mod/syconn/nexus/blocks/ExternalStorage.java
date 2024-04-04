@@ -1,7 +1,10 @@
 package mod.syconn.nexus.blocks;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.ExternalStorageBE;
+import mod.syconn.nexus.util.ConnectionType;
+import mod.syconn.nexus.util.CustomRender;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -26,7 +29,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
 
-public class ExternalStorage extends PipeAttachmentBlock {
+import static mod.syconn.nexus.util.ConnectionType.CABLE;
+import static mod.syconn.nexus.util.ConnectionType.OUTPUT;
+
+public class ExternalStorage extends PipeAttachmentBlock implements CustomRender {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
 
@@ -45,6 +51,11 @@ public class ExternalStorage extends PipeAttachmentBlock {
             case WEST -> Shapes.join(shape, Block.box(14, 2, 2, 16, 14, 14), BooleanOp.OR);
             case EAST -> Shapes.join(shape, Block.box(0, 2, 2, 2, 14, 14), BooleanOp.OR);
         };
+    }
+
+    protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos thisPos, Direction facing) {
+        if (state.getValue(FACING) == facing) return CABLE;
+        return super.getConnectorType(state, world, thisPos, facing);
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
@@ -73,6 +84,10 @@ public class ExternalStorage extends PipeAttachmentBlock {
 
     public BlockState mirror(BlockState pState, Mirror pMirror) {
         return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
+    }
+
+    public Block getBlock() {
+        return Registration.EXTERNAL_STORAGE_DUMMY.get();
     }
 
     @Nullable

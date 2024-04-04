@@ -1,23 +1,26 @@
 package mod.syconn.nexus.client.model;
 
 import mod.syconn.nexus.Nexus;
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.ExternalStorage;
 import mod.syconn.nexus.blocks.PipeAttachmentBlock;
 import mod.syconn.nexus.util.ConnectionType;
+import mod.syconn.nexus.util.CustomRender;
 import mod.syconn.nexus.util.PipePatterns;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.MultiVariant;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -283,18 +286,15 @@ public class PipeBakedModel implements IDynamicBakedModel {
             }
         }
 
-        // Render the facade if we have one in addition to the cable above. Note that the facade comes from the model data property
-        // (FACADEID)
-        BlockState facadeId = Blocks.TORCH.defaultBlockState();
-        if (facadeId != null && state != null && state.getBlock() instanceof ExternalStorage) {
-            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
+        if (state != null && state.getBlock() instanceof CustomRender cr) {
+            BlockState blockState = cr.getBlock().defaultBlockState().setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
+            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(blockState);
             if (side == null) {
                 try {
-                    quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
+                    quads.addAll(model.getQuads(blockState, side, rand, ModelData.EMPTY, layer));
                 } catch (Exception ignored) {}
             }
         }
-
         return quads;
     }
 

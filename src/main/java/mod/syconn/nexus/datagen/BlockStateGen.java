@@ -39,13 +39,12 @@ public class BlockStateGen extends BlockStateProvider {
                     .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
                     .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
         });
-//        simpleBlockItem(Registration.EXTERNAL_STORAGE.get(), generated(Registration.EXTERNAL_STORAGE.get()));
-//        getVariantBuilder(Registration.EXTERNAL_STORAGE.get()).forAllStates(state -> {
-//            Direction direction = state.getValue(InterfaceBlock.FACING);
-//            return ConfiguredModel.builder().modelFile(generated(Registration.EXTERNAL_STORAGE.get()))
-//                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
-//                    .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
-//        });
+        getVariantBuilder(Registration.EXTERNAL_STORAGE_DUMMY.get()).forAllStates(state -> {
+            Direction direction = state.getValue(InterfaceBlock.FACING);
+            return ConfiguredModel.builder().modelFile(generated(Registration.EXTERNAL_STORAGE_DUMMY.get()))
+                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
+                    .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
+        });
     }
 
     private void registerItemCables() {

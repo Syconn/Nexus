@@ -38,6 +38,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
+import static mod.syconn.nexus.util.ConnectionType.*;
+
 public abstract class PipeAttachmentBlock extends Block implements SimpleWaterloggedBlock, EntityBlock {
 
     public static final EnumProperty<ConnectionType> NORTH = EnumProperty.create("north", ConnectionType.class);
@@ -109,9 +111,9 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     private VoxelShape combineShape(VoxelShape shape, ConnectionType ConnectionType, VoxelShape cableShape, VoxelShape blockShape) {
-        if (ConnectionType == ConnectionType.CABLE) {
+        if (ConnectionType == CABLE) {
             return Shapes.join(shape, cableShape, BooleanOp.OR);
-        } else if (ConnectionType == ConnectionType.INPUT || ConnectionType == ConnectionType.OUTPUT) {
+        } else if (ConnectionType == INPUT || ConnectionType == OUTPUT) {
             return Shapes.join(shape, Shapes.join(blockShape, cableShape, BooleanOp.OR), BooleanOp.OR);
         } else {
             return shape;
@@ -119,12 +121,12 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
-        ConnectionType north = getConnectorType(world, pos, Direction.NORTH);
-        ConnectionType south = getConnectorType(world, pos, Direction.SOUTH);
-        ConnectionType west = getConnectorType(world, pos, Direction.WEST);
-        ConnectionType east = getConnectorType(world, pos, Direction.EAST);
-        ConnectionType up = getConnectorType(world, pos, Direction.UP);
-        ConnectionType down = getConnectorType(world, pos, Direction.DOWN);
+        ConnectionType north = getConnectorType(state, world, pos, Direction.NORTH);
+        ConnectionType south = getConnectorType(state, world, pos, Direction.SOUTH);
+        ConnectionType west = getConnectorType(state, world, pos, Direction.WEST);
+        ConnectionType east = getConnectorType(state, world, pos, Direction.EAST);
+        ConnectionType up = getConnectorType(state, world, pos, Direction.UP);
+        ConnectionType down = getConnectorType(state, world, pos, Direction.DOWN);
         int index = calculateShapeIndex(north, south, west, east, up, down);
         return shapeCache[index];
     }
@@ -147,14 +149,14 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
         }
     }
 
-    private ConnectionType getConnectorType(BlockGetter world, BlockPos connectorPos, Direction facing) {
+    protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
-        BlockState state = world.getBlockState(pos);
-        Block block = state.getBlock();
+        BlockState state2 = world.getBlockState(pos);
+        Block block = state2.getBlock();
         if (block instanceof PipeAttachmentBlock) {
-            return ConnectionType.CABLE;
+            return CABLE;
         } else if (isConnectable(world, connectorPos, facing)) {
-            return ConnectionType.OUTPUT; // TODO MAKE INPUT/OUTPUT
+            return OUTPUT; // TODO MAKE INPUT/OUTPUT
         } else {
             return ConnectionType.NONE;
         }
@@ -183,12 +185,12 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     private BlockState calculateState(LevelAccessor world, BlockPos pos, BlockState state) {
-        ConnectionType north = getConnectorType(world, pos, Direction.NORTH);
-        ConnectionType south = getConnectorType(world, pos, Direction.SOUTH);
-        ConnectionType west = getConnectorType(world, pos, Direction.WEST);
-        ConnectionType east = getConnectorType(world, pos, Direction.EAST);
-        ConnectionType up = getConnectorType(world, pos, Direction.UP);
-        ConnectionType down = getConnectorType(world, pos, Direction.DOWN);
+        ConnectionType north = getConnectorType(state, world, pos, Direction.NORTH);
+        ConnectionType south = getConnectorType(state, world, pos, Direction.SOUTH);
+        ConnectionType west = getConnectorType(state, world, pos, Direction.WEST);
+        ConnectionType east = getConnectorType(state, world, pos, Direction.EAST);
+        ConnectionType up = getConnectorType(state, world, pos, Direction.UP);
+        ConnectionType down = getConnectorType(state, world, pos, Direction.DOWN);
         return state.setValue(NORTH, north).setValue(SOUTH, south).setValue(WEST, west).setValue(EAST, east).setValue(UP, up).setValue(DOWN, down);
     }
 
@@ -206,14 +208,14 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty()) {
+        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
             if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE)) {
-                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(pLevel.getBlockEntity(pPos, Registration.ITEM_PIPE_BE.get()).get().getUUID(), pLevel)) {
+                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
                     pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
                 }
             }
             else {
-                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(pLevel.getBlockEntity(pPos, Registration.ITEM_PIPE_BE.get()).get().getUUID(), pLevel)) {
+                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
                     pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
                 }
             }

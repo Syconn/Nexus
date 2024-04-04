@@ -2,6 +2,9 @@ package mod.syconn.nexus.client;
 
 import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.client.loader.PipeModelLoader;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -13,7 +16,6 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void init(FMLClientSetupEvent event) {
-
     }
 
     @SubscribeEvent

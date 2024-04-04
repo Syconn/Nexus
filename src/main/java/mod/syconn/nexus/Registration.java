@@ -2,10 +2,7 @@ package mod.syconn.nexus;
 
 import mod.syconn.nexus.blockentities.ExternalStorageBE;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
-import mod.syconn.nexus.blocks.ExternalStorage;
-import mod.syconn.nexus.blocks.InterfaceBlock;
-import mod.syconn.nexus.blocks.ItemPipe;
-import mod.syconn.nexus.blocks.NexusBlock;
+import mod.syconn.nexus.blocks.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -13,6 +10,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -33,6 +31,7 @@ public class Registration {
     public static final DeferredBlock<Block> ITEM_PIPE = BLOCKS.register("item_pipe", ItemPipe::new);
     public static final DeferredBlock<Block> INTERFACE = BLOCKS.register("interface", InterfaceBlock::new);
     public static final DeferredBlock<Block> EXTERNAL_STORAGE = BLOCKS.register("external_storage", ExternalStorage::new);
+    public static final DeferredBlock<Block> EXTERNAL_STORAGE_DUMMY = BLOCKS.register("external_storage_dummy", () -> new DirectionalBlock(BlockBehaviour.Properties.of()));
 
     public static final DeferredItem<BlockItem> NEXUS_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("nexus", NEXUS);
     public static final DeferredItem<BlockItem> ITEM_PIPE_ITEM = ITEMS.registerSimpleBlockItem("item_pipe", ITEM_PIPE);
