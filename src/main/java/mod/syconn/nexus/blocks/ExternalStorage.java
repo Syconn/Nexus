@@ -5,10 +5,13 @@ import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.ExternalStorageBE;
 import mod.syconn.nexus.util.ConnectionType;
 import mod.syconn.nexus.util.CustomRender;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -61,6 +64,11 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
         pBuilder.add(FACING);
+    }
+
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pMovedByPiston) {
+        super.onPlace(pState, pLevel, pPos, pOldState, pMovedByPiston);
+        if (!pLevel.isClientSide() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) PipeNetworks.get((ServerLevel) pLevel).addStoragePoint(pLevel, pPos, pPos.relative(pState.getValue(FACING)), be.getUUID());
     }
 
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {

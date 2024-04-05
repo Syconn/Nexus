@@ -3,6 +3,8 @@ package mod.syconn.nexus.util.data;
 import mod.syconn.nexus.util.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +13,8 @@ import java.util.UUID;
 public class PipeNetwork {
 
     private final List<BlockPos> pipes;
-    private final List<StoragePoint> storagePoints;
+    private List<StoragePoint> storagePoints;
     private final UUID uuid;
-
 
     public PipeNetwork(UUID uuid, List<BlockPos> pipes) {
         this.uuid = uuid;
@@ -26,6 +27,10 @@ public class PipeNetwork {
         this.pipes = new ArrayList<>();
         this.pipes.add(pipe);
         this.storagePoints = new ArrayList<>();
+    }
+
+    public void setStoragePoint(List<StoragePoint> points) {
+        storagePoints = points;
     }
 
     public void addPositions(BlockPos... posses) {
@@ -46,8 +51,13 @@ public class PipeNetwork {
         return pipes.isEmpty();
     }
 
-    public void removeStoragePoint(StoragePoint point) {
-        storagePoints.remove(point);
+    public void removeStoragePoint(BlockPos pos) {
+        for (int i = 0; i < storagePoints.size(); i++) {
+            if (storagePoints.get(i).getPos().equals(pos)) {
+                storagePoints.remove(storagePoints.get(i));
+                return;
+            }
+        }
     }
 
     public List<BlockPos> getPipes() {
@@ -62,11 +72,24 @@ public class PipeNetwork {
         CompoundTag tag = new CompoundTag();
         tag.put("pipes", NBTHelper.writePosses(pipes));
         tag.putUUID("uuid", uuid);
-        // TODO SAVE POINTS
+        ListTag listTag = new ListTag();
+        for (StoragePoint point : storagePoints) {
+            CompoundTag tag2 = new CompoundTag();
+            tag2.put("point", point.save());
+            listTag.add(tag2);
+        }
+        tag.put("points", listTag);
         return tag;
     }
 
     public static PipeNetwork load(CompoundTag tag) {
-        return new PipeNetwork(tag.getUUID("uuid"), NBTHelper.readPosses(tag.getCompound("pipes")));
+        PipeNetwork network = new PipeNetwork(tag.getUUID("uuid"), NBTHelper.readPosses(tag.getCompound("pipes")));
+        List<StoragePoint> points = new ArrayList<>();
+        tag.getList("points", Tag.TAG_COMPOUND).forEach(tag2 -> {
+            CompoundTag nbt = (CompoundTag) tag2;
+            points.add(new StoragePoint(nbt.getCompound("point")));
+        });
+        network.setStoragePoint(points);
+        return network;
     }
 }

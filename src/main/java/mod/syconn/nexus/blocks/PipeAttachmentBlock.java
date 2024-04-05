@@ -16,7 +16,10 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -33,7 +36,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.ScheduledTick;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -209,9 +211,10 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
 
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
-            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE)) {
+            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE) && !pLevel.getBlockState(pPos.below()).is(Blocks.GREEN_CONCRETE)) {
                 for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
-                    pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
+                    if (!PipeNetworks.get((ServerLevel) pLevel).isStoragePoint(be.getUUID(), pos)) pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
+                    else pLevel.setBlock(pos.below(), Blocks.GREEN_CONCRETE.defaultBlockState(), 2);
                 }
             }
             else {
@@ -219,7 +222,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
                     pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
                 }
             }
-            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(pLevel.getBlockEntity(pPos, Registration.ITEM_PIPE_BE.get()).get().getUUID(), pLevel);
+            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel);
         }
         return InteractionResult.PASS;
     }

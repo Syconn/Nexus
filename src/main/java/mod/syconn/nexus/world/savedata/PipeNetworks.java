@@ -3,6 +3,7 @@ package mod.syconn.nexus.world.savedata;
 import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
 import mod.syconn.nexus.util.data.PipeNetwork;
+import mod.syconn.nexus.util.data.StoragePoint;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -35,10 +36,11 @@ public class PipeNetworks extends SavedData {
         return ((BasePipeBE) level.getBlockEntity(pos)).getUUID();
     }
 
-    private UUID newLine(Level level, UUID oldUUID, List<BlockPos> positions) {
+    private UUID newLine(Level level, UUID oldUUID, List<BlockPos> positions, List<StoragePoint> points) {
         if (pipe_network.containsKey(oldUUID) && pipe_network.get(oldUUID).removePosition(positions)) pipe_network.remove(oldUUID);
         UUID uuid = UUID.randomUUID();
         pipe_network.put(uuid, new PipeNetwork(uuid, positions));
+        pipe_network.get(uuid).setStoragePoint(points);
         for (BlockPos pos : positions) if (level.getBlockEntity(pos) instanceof ItemPipeBE be) be.setUUID(uuid);
         return uuid;
     }
@@ -59,12 +61,13 @@ public class PipeNetworks extends SavedData {
         return uuid;
     }
 
-    public boolean removePipe(Level level, BlockPos pos) {
+    public boolean removePipe(Level level, BlockPos pos) { // TODO get Storage Points to link
         boolean delete = false;
         if (level.getBlockEntity(pos) instanceof BasePipeBE be) {
             UUID uuid = be.getUUID();
             if (pipe_network.containsKey(uuid)) {
                 delete = pipe_network.get(uuid).removePosition(pos);
+                pipe_network.get(uuid).removeStoragePoint(pos);
                 if (delete) pipe_network.remove(uuid);
             }
             validLine(level, uuid);
@@ -73,11 +76,16 @@ public class PipeNetworks extends SavedData {
         return delete;
     }
 
+    public void addStoragePoint(Level level, BlockPos pos, BlockPos inventoryPos, UUID uuid) {
+        pipe_network.get(uuid).addStoragePoint(new StoragePoint(pos, inventoryPos, level));
+    }
+
     private void validLine(Level level, UUID uuid) {
         if (pipe_network.containsKey(uuid)) {
             List<BlockPos> validPosList = new ArrayList<>();
-            List<BlockPos> invalidPosList = new ArrayList<>();
             List<BlockPos> posList = pipe_network.get(uuid).getPipes();
+            List<StoragePoint> testPoints = pipe_network.get(uuid).getStoragePoints();
+            List<StoragePoint> storagePoints = new ArrayList<>();
             validPosList.add(posList.get(0));
             for (Direction d : Direction.values()) if (posList.contains(posList.get(0).relative(d))) validPosList.add(posList.get(0).relative(d));
             int lastSize = 0;
@@ -86,10 +94,10 @@ public class PipeNetworks extends SavedData {
                 List<BlockPos> testPos = List.of(validPosList.toArray(BlockPos[]::new));
                 for (BlockPos pos : testPos) for (Direction d : Direction.values()) if (posList.contains(pos.relative(d)) && !validPosList.contains(pos.relative(d))) validPosList.add(pos.relative(d));
             }
-            newLine(level, uuid, validPosList);
+            for (BlockPos pos : validPosList) for (StoragePoint point : testPoints) if (point.getPos().equals(pos)) storagePoints.add(point);
+            newLine(level, uuid, validPosList, storagePoints);
             for (BlockPos pos : posList) {
                 if (!validPosList.contains(pos)) {
-                    invalidPosList.add(pos);
                     validLine(level, uuid);
                     return;
                 }
@@ -100,6 +108,13 @@ public class PipeNetworks extends SavedData {
     public List<BlockPos> getAllPipesByUUID(UUID uuid, Level level) {
         if (pipe_network.containsKey(uuid)) return pipe_network.get(uuid).getPipes();
         return List.of();
+    }
+
+    public boolean isStoragePoint(UUID uuid, BlockPos pos) {
+        for (StoragePoint point : pipe_network.get(uuid).getStoragePoints()) {
+            if (point.getPos().equals(pos)) return true;
+        }
+        return false;
     }
 
     public CompoundTag save(CompoundTag pCompoundTag) {
