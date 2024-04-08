@@ -171,8 +171,9 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
         if (state.is(Registration.PIPE_CONNECTIVE)) return true;
         if (state.is(Registration.DIRECTIONAL_PIPE_CONNECTIVE) && state.getValue(InterfaceBlock.FACING) == facing) return true;
         if (state.isAir()) return false;
-        if (te == null) return false;
-        return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, pos, null) != null;
+//        if (te == null) return false;
+//        return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, pos, null) != null;
+        return false;
     }
 
     protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
@@ -201,7 +202,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
-        if (!pLevel.isClientSide() && !(pNewState.getBlock() instanceof ItemPipe)) PipeNetworks.get((ServerLevel) pLevel).removePipe(pLevel, pPos);
+        if (!pLevel.isClientSide() && !(pNewState.getBlock() instanceof PipeAttachmentBlock)) PipeNetworks.get((ServerLevel) pLevel).removePipe(pLevel, pPos);
         super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
     }
 

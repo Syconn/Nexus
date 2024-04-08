@@ -32,8 +32,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
 
-import static mod.syconn.nexus.util.ConnectionType.CABLE;
-import static mod.syconn.nexus.util.ConnectionType.OUTPUT;
+import java.util.UUID;
+
+import static mod.syconn.nexus.util.ConnectionType.*;
 
 public class ExternalStorage extends PipeAttachmentBlock implements CustomRender {
 
@@ -57,7 +58,9 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
     }
 
     protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos thisPos, Direction facing) {
-        if (state.getValue(FACING) == facing) return CABLE;
+        if (state.getValue(FACING).getOpposite() == facing) return CABLE;
+        else if (world.getBlockEntity(thisPos.relative(facing)) != null &&
+                world.getBlockEntity(thisPos.relative(facing)).getLevel().getCapability(Capabilities.ItemHandler.BLOCK, thisPos.relative(facing), null) != null) return NONE;
         return super.getConnectorType(state, world, thisPos, facing);
     }
 
@@ -67,8 +70,11 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
     }
 
     public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pMovedByPiston) {
-        super.onPlace(pState, pLevel, pPos, pOldState, pMovedByPiston);
-        if (!pLevel.isClientSide() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) PipeNetworks.get((ServerLevel) pLevel).addStoragePoint(pLevel, pPos, pPos.relative(pState.getValue(FACING)), be.getUUID());
+        if (!pLevel.isClientSide() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
+            PipeNetworks network = PipeNetworks.get((ServerLevel) pLevel);
+            UUID uuid = network.addPipe(pLevel, pPos);
+            network.addStoragePoint(pLevel, pPos, pPos.relative(pState.getValue(FACING)), uuid);
+        }
     }
 
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {

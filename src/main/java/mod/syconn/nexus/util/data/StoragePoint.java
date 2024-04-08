@@ -29,6 +29,10 @@ public class StoragePoint {
         update(level);
     }
 
+    public boolean matches(StoragePoint point) {
+        return inventoryPos.equals(point.inventoryPos) && pos.equals(point.pos);
+    }
+
     public StoragePoint(CompoundTag tag) {
         pos = NbtUtils.readBlockPos(tag.getCompound("pos"));
         inventoryPos = NbtUtils.readBlockPos(tag.getCompound("inventorypos"));

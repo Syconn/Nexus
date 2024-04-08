@@ -1,7 +1,6 @@
 package mod.syconn.nexus.world.savedata;
 
 import mod.syconn.nexus.blockentities.BasePipeBE;
-import mod.syconn.nexus.blockentities.ItemPipeBE;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import net.minecraft.core.BlockPos;
@@ -22,11 +21,11 @@ public class PipeNetworks extends SavedData {
         if (level.getBlockEntity(pos) instanceof BasePipeBE temp && temp.getUUID() == null) {
             UUID uuid = UUID.randomUUID();
             pipe_network.put(uuid, new PipeNetwork(uuid, pos));
-            if (level.getBlockEntity(pos) instanceof ItemPipeBE be) be.setUUID(uuid);
+            if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
             for (Direction d : Direction.values()) {
-                if (level.getBlockEntity(pos.relative(d)) instanceof ItemPipeBE be) {
+                if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be) {
                     if (be.getUUID() != null) {
-                        conjoin(level, uuid, be.getUUID());
+                        uuid = conjoin(level, uuid, be.getUUID());
                     }
                 }
             }
@@ -41,7 +40,7 @@ public class PipeNetworks extends SavedData {
         UUID uuid = UUID.randomUUID();
         pipe_network.put(uuid, new PipeNetwork(uuid, positions));
         pipe_network.get(uuid).setStoragePoint(points);
-        for (BlockPos pos : positions) if (level.getBlockEntity(pos) instanceof ItemPipeBE be) be.setUUID(uuid);
+        for (BlockPos pos : positions) if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
         return uuid;
     }
 
@@ -51,8 +50,9 @@ public class PipeNetworks extends SavedData {
             if (pipe_network.containsKey(uuids[i])) {
                 pipe_network.get(uuid).addPositions(pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new));
                 for (BlockPos pos : pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new)) {
-                    if (level.getBlockEntity(pos) instanceof ItemPipeBE be) be.setUUID(uuid);
+                    if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
                 }
+                pipe_network.get(uuid).addStoragePoints(pipe_network.get(uuids[i]).getStoragePoints());
                 if (uuid != uuids[i]) pipe_network.remove(uuids[i]);
                 setDirty();
             }
@@ -61,7 +61,7 @@ public class PipeNetworks extends SavedData {
         return uuid;
     }
 
-    public boolean removePipe(Level level, BlockPos pos) { // TODO get Storage Points to link
+    public boolean removePipe(Level level, BlockPos pos) {
         boolean delete = false;
         if (level.getBlockEntity(pos) instanceof BasePipeBE be) {
             UUID uuid = be.getUUID();
@@ -77,7 +77,10 @@ public class PipeNetworks extends SavedData {
     }
 
     public void addStoragePoint(Level level, BlockPos pos, BlockPos inventoryPos, UUID uuid) {
-        pipe_network.get(uuid).addStoragePoint(new StoragePoint(pos, inventoryPos, level));
+        if (pipe_network.containsKey(uuid)) {
+            pipe_network.get(uuid).addStoragePoint(new StoragePoint(pos, inventoryPos, level));
+            setDirty();
+        }
     }
 
     private void validLine(Level level, UUID uuid) {

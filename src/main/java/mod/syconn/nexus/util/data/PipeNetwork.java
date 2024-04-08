@@ -38,7 +38,14 @@ public class PipeNetwork {
     }
 
     public void addStoragePoint(StoragePoint point) {
+        for (StoragePoint point2 : storagePoints) {
+            if (point.matches(point2)) return;
+        }
         storagePoints.add(point);
+    }
+
+    public void addStoragePoints(List<StoragePoint> point) {
+        storagePoints.addAll(point);
     }
 
     public boolean removePosition(BlockPos pos) {
