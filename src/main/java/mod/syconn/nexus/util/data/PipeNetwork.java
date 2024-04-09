@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,10 @@ public class PipeNetwork {
 
     public List<StoragePoint> getStoragePoints() {
         return storagePoints;
+    }
+
+    public void updateAllPoints(Level level) {
+        storagePoints.forEach(p -> p.update(level));
     }
 
     public CompoundTag save() {

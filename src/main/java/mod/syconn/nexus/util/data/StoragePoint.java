@@ -8,12 +8,14 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class StoragePoint {
@@ -71,10 +73,12 @@ public class StoragePoint {
     public void update(Level level) {
         stacks.clear();
         liquids.clear();
-        if (level.getBlockEntity(inventoryPos) == null) return; // TODO REMOVE
+        if (level.getBlockEntity(inventoryPos) == null) return;
         if (level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) {
-            stacks = ItemStackHelper.combineItemsInStorage(level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null));
+            stacks = ItemStackHelper.combineItemsInStorage(level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null), Blocks.AIR.asItem());
         }
+
+//        System.out.println(Arrays.toString(stacks.toArray()));
     }
 
     public CompoundTag save() {

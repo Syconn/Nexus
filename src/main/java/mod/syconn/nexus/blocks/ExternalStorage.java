@@ -70,10 +70,10 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
     }
 
     public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pMovedByPiston) {
-        if (!pLevel.isClientSide() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
+        if (!pLevel.isClientSide()) {
             PipeNetworks network = PipeNetworks.get((ServerLevel) pLevel);
             UUID uuid = network.addPipe(pLevel, pPos);
-            network.addStoragePoint(pLevel, pPos, pPos.relative(pState.getValue(FACING)), uuid);
+            network.addStoragePoint(pLevel, pPos, pPos.relative(pState.getValue(FACING).getOpposite()), uuid);
         }
     }
 

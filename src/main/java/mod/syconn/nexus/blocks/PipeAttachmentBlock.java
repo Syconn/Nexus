@@ -50,7 +50,6 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     public static final EnumProperty<ConnectionType> EAST = EnumProperty.create("east", ConnectionType.class);
     public static final EnumProperty<ConnectionType> UP = EnumProperty.create("up", ConnectionType.class);
     public static final EnumProperty<ConnectionType> DOWN = EnumProperty.create("down", ConnectionType.class);
-//    public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>(); //TODO REMOVE
 
     private static VoxelShape[] shapeCache = null;
     private static final VoxelShape SHAPE_CABLE_NORTH = Shapes.box(.3, .3, 0, .7, .7, .3);
@@ -167,13 +166,8 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     public static boolean isConnectable(BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
-        BlockEntity te = world.getBlockEntity(pos);
         if (state.is(Registration.PIPE_CONNECTIVE)) return true;
-        if (state.is(Registration.DIRECTIONAL_PIPE_CONNECTIVE) && state.getValue(InterfaceBlock.FACING) == facing) return true;
-        if (state.isAir()) return false;
-//        if (te == null) return false;
-//        return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, pos, null) != null;
-        return false;
+        return state.is(Registration.DIRECTIONAL_PIPE_CONNECTIVE) && state.getValue(InterfaceBlock.FACING) == facing;
     }
 
     protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
@@ -187,7 +181,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
         return calculateState(world, pos, defaultBlockState()).setValue(BlockStateProperties.WATERLOGGED, world.getFluidState(pos).getType() == Fluids.WATER);
     }
 
-    private BlockState calculateState(LevelAccessor world, BlockPos pos, BlockState state) {
+    protected BlockState calculateState(LevelAccessor world, BlockPos pos, BlockState state) {
         ConnectionType north = getConnectorType(state, world, pos, Direction.NORTH);
         ConnectionType south = getConnectorType(state, world, pos, Direction.SOUTH);
         ConnectionType west = getConnectorType(state, world, pos, Direction.WEST);
