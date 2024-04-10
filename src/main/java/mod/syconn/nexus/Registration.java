@@ -4,15 +4,18 @@ import mod.syconn.nexus.blockentities.ExternalStorageBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
 import mod.syconn.nexus.blocks.*;
+import mod.syconn.nexus.world.menu.InterfaceMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -27,6 +30,7 @@ public class Registration {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Nexus.MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID);
+    public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
 
     public static final DeferredBlock<Block> NEXUS = BLOCKS.register("nexus", NexusBlock::new);
     public static final DeferredBlock<Block> ITEM_PIPE = BLOCKS.register("item_pipe", ItemPipe::new);
@@ -47,6 +51,8 @@ public class Registration {
     public static final TagKey<Block> PIPE_CONNECTIVE = BlockTags.create(new ResourceLocation(MODID, "pipe_connective"));
     public static final TagKey<Block> DIRECTIONAL_PIPE_CONNECTIVE = BlockTags.create(new ResourceLocation(MODID, "directional_pipe_connective"));
     public static final TagKey<Block> OPPOSITE_DIRECTIONAL_PIPE_CONNECTIVE = BlockTags.create(new ResourceLocation(MODID, "opp_dir_con"));
+
+    public static final Supplier<MenuType<InterfaceMenu>> INTERFACE_MENU = MENUS.register("interface", () -> IMenuTypeExtension.create((windowId, inv, data) -> new InterfaceMenu(windowId, inv.player, data.readBlockPos())));
 
     public static void addCreative(BuildCreativeModeTabContentsEvent event)
     {

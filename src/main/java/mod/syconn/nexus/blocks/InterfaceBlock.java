@@ -3,13 +3,18 @@ package mod.syconn.nexus.blocks;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.world.menu.InterfaceMenu;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -53,12 +58,24 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
     }
 
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (!pLevel.isClientSide() && pHand.equals(InteractionHand.MAIN_HAND) && pLevel.getBlockEntity(pPos) instanceof InterfaceBE be) {
-            PipeNetworks network = PipeNetworks.get((ServerLevel) pLevel);
-            network.getItemsOnNetwork(pLevel, be.getUUID()).forEach((key, value) -> System.out.println(key + ":" + Arrays.toString(value.toArray())));
-            return InteractionResult.SUCCESS;
+        if (!pLevel.isClientSide) {
+            BlockEntity be = pLevel.getBlockEntity(pPos);
+            if (be instanceof InterfaceBE) {
+                MenuProvider containerProvider = new MenuProvider() {
+                    public Component getDisplayName() {
+                        return Component.translatable(SCREEN_TUTORIAL_PROCESSOR);
+                    }
+
+                    public AbstractContainerMenu createMenu(int windowId, Inventory playerInventory, Player playerEntity) {
+                        return new InterfaceMenu(windowId, playerEntity, pPos);
+                    }
+                };
+                pPlayer.openMenu(containerProvider, buf -> buf.writeBlockPos(pPos));
+            } else {
+                throw new IllegalStateException("Our named container provider is missing!");
+            }
         }
-        return InteractionResult.PASS;
+        return InteractionResult.SUCCESS;
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
