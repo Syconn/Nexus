@@ -4,6 +4,7 @@ import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -14,21 +15,24 @@ import net.minecraft.world.item.ItemStack;
 public class InterfaceMenu extends AbstractContainerMenu {
 
     private final BlockPos pos;
+    private final int SLOT_COUNT = 7;
 
     public InterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
-
+//            addSlotBox(new SimpleContainer(2), 9, leftCol, topRow, 9, 18, 3, 18);
         }
-        layoutPlayerInventorySlots(player.getInventory(), 10, 70);
+        layoutPlayerInventorySlots(player.getInventory(), 9, 122);
+    }
+
+    public BlockPos getPos() {
+        return pos;
     }
 
     private void layoutPlayerInventorySlots(Container playerInventory, int leftCol, int topRow) {
-        // Player inventory
         addSlotBox(playerInventory, 9, leftCol, topRow, 9, 18, 3, 18);
 
-        // Hotbar
         topRow += 58;
         addSlotRange(playerInventory, 0, leftCol, topRow, 9, 18);
     }
@@ -61,7 +65,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             }
-            if (!this.moveItemStackTo(stack, SLOT_INPUT, SLOT_INPUT+1, false)) {
+            if (!this.moveItemStackTo(stack, 0, 1, false)) {
                 if (index < 27 + SLOT_COUNT) {
                     if (!this.moveItemStackTo(stack, 27 + SLOT_COUNT, 36 + SLOT_COUNT, false)) {
                         return ItemStack.EMPTY;

@@ -19,29 +19,23 @@ public class Nexus
 {
     public static final String MODID = "nexus";
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> NEXUS_TAB = CREATIVE_MODE_TABS.register("nexus", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup." + MODID)).icon(() -> Registration.NEXUS.get().asItem().getDefaultInstance()).build());
-
     public Nexus(IEventBus modEventBus)
     {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::gatherData);
-        modEventBus.addListener(Registration::registerCapabilities);
         modEventBus.addListener(Channel::onRegisterPayloadHandler);
         modEventBus.addListener(Registration::addCreative);
 
         Registration.BLOCKS.register(modEventBus);
         Registration.ITEMS.register(modEventBus);
         Registration.BLOCK_ENTITIES.register(modEventBus);
-        CREATIVE_MODE_TABS.register(modEventBus);
+        Registration.MENUS.register(modEventBus);
+        Registration.TABS.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+    private void commonSetup(final FMLCommonSetupEvent event) {
 
     }
 

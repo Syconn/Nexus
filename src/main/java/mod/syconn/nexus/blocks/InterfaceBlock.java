@@ -63,7 +63,7 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
             if (be instanceof InterfaceBE) {
                 MenuProvider containerProvider = new MenuProvider() {
                     public Component getDisplayName() {
-                        return Component.translatable(SCREEN_TUTORIAL_PROCESSOR);
+                        return Component.literal("Nexus Screen");
                     }
 
                     public AbstractContainerMenu createMenu(int windowId, Inventory playerInventory, Player playerEntity) {
