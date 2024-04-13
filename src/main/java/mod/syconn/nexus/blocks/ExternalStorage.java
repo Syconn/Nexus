@@ -1,10 +1,12 @@
 package mod.syconn.nexus.blocks;
 
+import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.ExternalStorageBE;
 import mod.syconn.nexus.util.ConnectionType;
 import mod.syconn.nexus.util.CustomRender;
+import mod.syconn.nexus.util.PipePatterns;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -90,6 +92,13 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
 
     public BlockState updateShape(BlockState pState, Direction pDirection, BlockState pNeighborState, LevelAccessor pLevel, BlockPos pPos, BlockPos pNeighborPos) {
         return !pState.canSurvive(pLevel, pPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(pState, pDirection, pNeighborState, pLevel, pPos, pNeighborPos);
+    }
+
+    public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+        super.onNeighborChange(state, level, pos, neighbor);
+        if (!level.isClientSide() && ((ServerLevel) level).getCapability(Capabilities.ItemHandler.BLOCK, neighbor, null) != null && level.getBlockEntity(pos) instanceof BasePipeBE be) {
+            PipeNetworks.get((ServerLevel) level).updateAllPoints((Level) level, be.getUUID());
+        }
     }
 
     public BlockState rotate(BlockState pState, Rotation pRotation) {

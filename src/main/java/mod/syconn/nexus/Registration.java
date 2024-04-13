@@ -17,6 +17,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -62,11 +63,13 @@ public class Registration {
 
     public static final Supplier<MenuType<InterfaceMenu>> INTERFACE_MENU = MENUS.register("interface", () -> IMenuTypeExtension.create((windowId, inv, data) -> new InterfaceMenu(windowId, inv.player, data.readBlockPos())));
 
-    public static void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
-        if (event.getTabKey() == NEXUS_TAB.getKey())
-        {
+    public static void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == NEXUS_TAB.getKey()) {
             ITEMS.getEntries().forEach(i -> event.accept(i.get()));
         }
+    }
+
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, INTERFACE_BE.get(), (o, direction) -> o.getItemHandler());
     }
 }

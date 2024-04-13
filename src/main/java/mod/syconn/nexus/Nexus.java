@@ -13,11 +13,14 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(Nexus.MODID)
 public class Nexus
 {
     public static final String MODID = "nexus";
+    public static final Logger LOGGER = LogManager.getLogger();
 
     public Nexus(IEventBus modEventBus)
     {
@@ -25,6 +28,7 @@ public class Nexus
         modEventBus.addListener(this::gatherData);
         modEventBus.addListener(Channel::onRegisterPayloadHandler);
         modEventBus.addListener(Registration::addCreative);
+        modEventBus.addListener(Registration::registerCapabilities);
 
         Registration.BLOCKS.register(modEventBus);
         Registration.ITEMS.register(modEventBus);

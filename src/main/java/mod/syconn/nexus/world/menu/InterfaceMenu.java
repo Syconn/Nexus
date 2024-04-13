@@ -4,13 +4,13 @@ import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class InterfaceMenu extends AbstractContainerMenu {
 
@@ -21,7 +21,14 @@ public class InterfaceMenu extends AbstractContainerMenu {
         super(Registration.INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
-//            addSlotBox(new SimpleContainer(2), 9, leftCol, topRow, 9, 18, 3, 18);
+            int index = 0;
+            for (int y = 0; y < 5; y++) {
+                for (int x = 0; x < 9; x++) {
+                    addSlot(new SlotItemHandler(be.getItems(), index, 9 + 18 * x, 18 + 18 * y));
+                    index++;
+                }
+            }
+
         }
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
     }

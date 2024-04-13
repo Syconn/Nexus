@@ -1,5 +1,6 @@
 package mod.syconn.nexus.util.data;
 
+import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.util.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -78,6 +79,9 @@ public class PipeNetwork {
 
     public void updateAllPoints(Level level) {
         storagePoints.forEach(p -> p.update(level));
+        for (BlockPos pos : pipes) {
+            if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
+        }
     }
 
     public CompoundTag save() {
