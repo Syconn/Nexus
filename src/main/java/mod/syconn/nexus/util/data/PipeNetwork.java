@@ -1,10 +1,12 @@
 package mod.syconn.nexus.util.data;
 
+import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.util.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -76,8 +78,9 @@ public class PipeNetwork {
         return storagePoints;
     }
 
-    public void updateAllPoints(Level level) {
+    public void updateAllPoints(Level level, boolean update) {
         storagePoints.forEach(p -> p.update(level));
+        if (update) for (BlockPos pos : pipes) if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
     }
 
     public CompoundTag save() {

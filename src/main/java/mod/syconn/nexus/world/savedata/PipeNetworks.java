@@ -18,6 +18,11 @@ import java.util.*;
 public class PipeNetworks extends SavedData {
 
     private Map<UUID, PipeNetwork> pipe_network = new HashMap<>();
+
+    public PipeNetwork getPipeNetwork(UUID uuid) {
+        return pipe_network.get(uuid);
+    }
+
     public UUID addPipe(Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof BasePipeBE temp && temp.getUUID() == null) {
             UUID uuid = UUID.randomUUID();
@@ -133,8 +138,8 @@ public class PipeNetworks extends SavedData {
         return pCompoundTag;
     }
 
-    public Map<BlockPos, List<ItemStack>> getItemsOnNetwork(Level level, UUID uuid) {
-        updateAllPoints(level, uuid);
+    public Map<BlockPos, List<ItemStack>> getItemsOnNetwork(Level level, UUID uuid, boolean update) {
+        updateAllPoints(level, uuid, update);
         Map<BlockPos, List<ItemStack>> map = new HashMap<>();
         for(StoragePoint point : pipe_network.get(uuid).getStoragePoints()) {
             if (map.containsKey(point.getInventoryPos())) {
@@ -148,8 +153,8 @@ public class PipeNetworks extends SavedData {
         return map;
     }
 
-    public void updateAllPoints(Level level, UUID uuid) {
-        pipe_network.get(uuid).updateAllPoints(level);
+    public void updateAllPoints(Level level, UUID uuid, boolean update) {
+        pipe_network.get(uuid).updateAllPoints(level, update);
     }
 
     private static PipeNetworks create() {

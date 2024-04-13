@@ -1,14 +1,12 @@
 package mod.syconn.nexus.blocks;
 
+import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
-import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
-import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -22,8 +20,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -34,8 +30,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
 
 public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
 
@@ -61,6 +55,7 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
         if (!pLevel.isClientSide) {
             BlockEntity be = pLevel.getBlockEntity(pPos);
             if (be instanceof InterfaceBE) {
+                ((InterfaceBE) be).updateScreen();
                 MenuProvider containerProvider = new MenuProvider() {
                     public Component getDisplayName() {
                         return Component.literal("Nexus Screen");
@@ -72,7 +67,7 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
                 };
                 pPlayer.openMenu(containerProvider, buf -> buf.writeBlockPos(pPos));
             } else {
-                throw new IllegalStateException("Our named container provider is missing!");
+                throw new IllegalStateException("container provider is missing!");
             }
         }
         return InteractionResult.SUCCESS;

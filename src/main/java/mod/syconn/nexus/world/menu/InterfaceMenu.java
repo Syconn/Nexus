@@ -4,13 +4,13 @@ import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class InterfaceMenu extends AbstractContainerMenu {
 
@@ -21,7 +21,13 @@ public class InterfaceMenu extends AbstractContainerMenu {
         super(Registration.INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
-//            addSlotBox(new SimpleContainer(2), 9, leftCol, topRow, 9, 18, 3, 18);
+            int index = 0;
+            for (int y = 0; y < 5; y++) {
+                for (int x = 0; x < 9; x++) {
+                    addSlot(new SlotItemHandler(be.getItems(), index, 9 + 18 * x, 18 + 18 * y));
+                    index++;
+                }
+            }
         }
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
     }
@@ -32,7 +38,6 @@ public class InterfaceMenu extends AbstractContainerMenu {
 
     private void layoutPlayerInventorySlots(Container playerInventory, int leftCol, int topRow) {
         addSlotBox(playerInventory, 9, leftCol, topRow, 9, 18, 3, 18);
-
         topRow += 58;
         addSlotRange(playerInventory, 0, leftCol, topRow, 9, 18);
     }
@@ -58,36 +63,21 @@ public class InterfaceMenu extends AbstractContainerMenu {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot.hasItem()) {
-            ItemStack stack = slot.getItem();
-            itemstack = stack.copy();
-            if (index < SLOT_COUNT) {
-                if (!this.moveItemStackTo(stack, SLOT_COUNT, Inventory.INVENTORY_SIZE + SLOT_COUNT, true)) {
+            ItemStack itemstack1 = slot.getItem().copyWithCount(64);
+            itemstack = itemstack1.copy();
+            if (index < 45) {
+                if (!this.moveItemStackTo(itemstack1, 45, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
+            } else if (!this.moveItemStackTo(itemstack1, 0, 45, false)) {
+                return ItemStack.EMPTY;
             }
-            if (!this.moveItemStackTo(stack, 0, 1, false)) {
-                if (index < 27 + SLOT_COUNT) {
-                    if (!this.moveItemStackTo(stack, 27 + SLOT_COUNT, 36 + SLOT_COUNT, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index < Inventory.INVENTORY_SIZE + SLOT_COUNT && !this.moveItemStackTo(stack, SLOT_COUNT, 27 + SLOT_COUNT, false)) {
-                    return ItemStack.EMPTY;
-                }
-            }
-
-            if (stack.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
+            if (itemstack1.isEmpty()) {
+                slot.setByPlayer(ItemStack.EMPTY);
             } else {
                 slot.setChanged();
             }
-
-            if (stack.getCount() == itemstack.getCount()) {
-                return ItemStack.EMPTY;
-            }
-
-            slot.onTake(player, stack);
         }
-
         return itemstack;
     }
 

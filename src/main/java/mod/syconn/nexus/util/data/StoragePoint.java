@@ -12,10 +12,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class StoragePoint {
@@ -52,33 +52,11 @@ public class StoragePoint {
         liquids = fluidStacks;
     }
 
-    public ItemStack addItemStack(Level level, ItemStack stack) {
-        if (level.getBlockEntity(inventoryPos) != null && level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) {
-            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null);
-            return ItemHandlerHelper.insertItem(handler, stack, false);
-        }
-
-        return stack;
-    }
-
-    public ItemStack requestItemStack(Level level, ItemStack stack) {
-        if (level.getBlockEntity(inventoryPos) != null && level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) {
-            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null);
-            return ItemStackHelper.removeStack(handler, stack, false);
-        }
-
-        return ItemStack.EMPTY;
-    }
-
     public void update(Level level) {
         stacks.clear();
         liquids.clear();
         if (level.getBlockEntity(inventoryPos) == null) return;
-        if (level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) {
-            stacks = ItemStackHelper.combineItemsInStorage(level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null), Blocks.AIR.asItem());
-        }
-
-//        System.out.println(Arrays.toString(stacks.toArray()));
+        if (level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) stacks = ItemStackHelper.combineItemsInStorage(level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null), Blocks.AIR.asItem());
     }
 
     public CompoundTag save() {

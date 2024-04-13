@@ -223,9 +223,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
-            return null;
-        } else return (lvl, pos, st, be) -> {
+        return (lvl, pos, st, be) -> {
             if (be instanceof BasePipeBE cable) {
                 cable.tickServer();
             }
