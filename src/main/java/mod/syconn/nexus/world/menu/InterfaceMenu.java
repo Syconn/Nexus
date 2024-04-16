@@ -6,21 +6,22 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class InterfaceMenu extends AbstractContainerMenu {
 
     private final BlockPos pos;
-    private final int SLOT_COUNT = 7;
+    private IItemHandlerModifiable items;
 
     public InterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
+            items = be.getItems();
             int index = 0;
             for (int y = 0; y < 5; y++) {
                 for (int x = 0; x < 9; x++) {
@@ -69,6 +70,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemstack1, 45, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
+                items.extractItem(index, 63, false);
             } else if (!this.moveItemStackTo(itemstack1, 0, 45, false)) {
                 return ItemStack.EMPTY;
             }

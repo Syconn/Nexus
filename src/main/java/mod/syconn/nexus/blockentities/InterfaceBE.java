@@ -32,19 +32,21 @@ public class InterfaceBE extends BasePipeBE {
     private final UncappedItemHandler items = createItemHandler();
     private final Lazy<IItemHandler> itemHandler = Lazy.of(() -> items);
     private final Map<Integer, BlockPos> registry = new HashMap<>();
+    private int line = 0;
     private boolean updateScreen = false;
 
     public InterfaceBE(BlockPos pos, BlockState state) {
         super(Registration.INTERFACE_BE.get(), pos, state);
     }
 
-    public void tickServer() {
+    public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO EDITS
         if (updateScreen && !level.isClientSide()) {
             for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);
             Map<BlockPos, List<ItemStack>> map = network.getItemsOnNetwork(level, getUUID(), false);
-            int slot = 0;
+            int slot = line * 9;
             for (Map.Entry<BlockPos, List<ItemStack>> m : map.entrySet()) {
+                if (slot > items.getSlots()) break;
                 for (ItemStack stack : m.getValue()) {
                     items.setStackInSlot(slot, stack);
                     registry.put(slot, m.getKey());
@@ -56,15 +58,13 @@ public class InterfaceBE extends BasePipeBE {
         }
     }
 
-    private UncappedItemHandler createItemHandler() {
+    private UncappedItemHandler createItemHandler() { // TODO COMBINE STACKS FROM MULTIPLE SOURCES
         return new UncappedItemHandler(45) {
             protected void onContentsChanged(int slot) {
                 markDirty();
             }
 
             public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-
-                System.out.println("extract");
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
                     IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot), null);
@@ -114,6 +114,7 @@ public class InterfaceBE extends BasePipeBE {
         }));
         tag.put("registry", registryTag);
         tag.putBoolean("update", updateScreen);
+        tag.putInt("line", line);
     }
 
     protected void loadClientData(CompoundTag tag) {
@@ -126,5 +127,6 @@ public class InterfaceBE extends BasePipeBE {
             registry.put(nbt.getInt("int"), NbtUtils.readBlockPos(nbt.getCompound("pos")));
         });
         updateScreen = tag.getBoolean("update");
+        line = tag.getInt("line");
     }
 }
