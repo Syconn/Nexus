@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -138,16 +139,23 @@ public class PipeNetworks extends SavedData {
         return pCompoundTag;
     }
 
-    public Map<BlockPos, List<ItemStack>> getItemsOnNetwork(Level level, UUID uuid, boolean update) {
+    public Map<Item, Map<BlockPos, List<ItemStack>>> getItemsOnNetwork(Level level, UUID uuid, boolean update) {
         updateAllPoints(level, uuid, update);
-        Map<BlockPos, List<ItemStack>> map = new HashMap<>();
+        Map<Item, Map<BlockPos, List<ItemStack>>> map = new HashMap<>();
         for(StoragePoint point : pipe_network.get(uuid).getStoragePoints()) {
-            if (map.containsKey(point.getInventoryPos())) {
-                List<ItemStack> stacks = map.get(point.getInventoryPos());
-                stacks.addAll(point.getItems());
-                map.put(point.getInventoryPos(), stacks);
-            } else {
-                map.put(point.getInventoryPos(), point.getItems());
+//            if (map.containsKey(point.getInventoryPos())) {
+//                List<ItemStack> stacks = map.get(point.getInventoryPos());
+//                stacks.addAll(point.getItems());
+//                map.put(point.getInventoryPos(), stacks);
+//            } else {
+//                map.put(point.getInventoryPos(), point.getItems());
+//            }
+            for (ItemStack stack : point.getItems()) {
+                if (map.containsKey(stack.getItem())) {
+
+                } else {
+                    map.put(stack.getItem(), new HashMap);
+                }
             }
         }
         return map;
