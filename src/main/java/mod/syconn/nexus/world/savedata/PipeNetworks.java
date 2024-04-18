@@ -143,19 +143,18 @@ public class PipeNetworks extends SavedData {
         updateAllPoints(level, uuid, update);
         Map<Item, Map<BlockPos, List<ItemStack>>> map = new HashMap<>();
         for(StoragePoint point : pipe_network.get(uuid).getStoragePoints()) {
-//            if (map.containsKey(point.getInventoryPos())) {
-//                List<ItemStack> stacks = map.get(point.getInventoryPos());
-//                stacks.addAll(point.getItems());
-//                map.put(point.getInventoryPos(), stacks);
-//            } else {
-//                map.put(point.getInventoryPos(), point.getItems());
-//            }
             for (ItemStack stack : point.getItems()) {
                 if (map.containsKey(stack.getItem())) {
-
-                } else {
-                    map.put(stack.getItem(), new HashMap);
-                }
+                    if (map.get(stack.getItem()).containsKey(point.getInventoryPos())) {
+                        List<ItemStack> stacks = map.get(stack.getItem()).get(point.getInventoryPos());
+                        stacks.addAll(point.getItems());
+                        map.get(stack.getItem()).put(point.getInventoryPos(), stacks);
+                    } else {
+                        Map<BlockPos, List<ItemStack>> m = map.get(stack.getItem());
+                        m.put(point.getInventoryPos(), new ArrayList<>(List.of(stack)));
+                        map.put(stack.getItem(), m);
+                    }
+                } else map.put(stack.getItem(), new HashMap<>(Map.of(point.getInventoryPos(), List.of(stack))));
             }
         }
         return map;

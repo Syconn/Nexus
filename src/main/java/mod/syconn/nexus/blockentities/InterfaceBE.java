@@ -2,6 +2,7 @@ package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.util.ItemStackHelper;
+import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import mod.syconn.nexus.world.capabilities.UncappedItemHandler;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -22,6 +24,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +34,7 @@ public class InterfaceBE extends BasePipeBE {
     private static final String ITEMS_TAG = "Inventory";
     private final UncappedItemHandler items = createItemHandler();
     private final Lazy<IItemHandler> itemHandler = Lazy.of(() -> items);
-    private final Map<Integer, BlockPos> registry = new HashMap<>();
+    private final Map<Integer, List<BlockPos>> registry = new HashMap<>();
     private int line = 0;
     private boolean updateScreen = false;
 
@@ -39,26 +42,30 @@ public class InterfaceBE extends BasePipeBE {
         super(Registration.INTERFACE_BE.get(), pos, state);
     }
 
-    public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO EDITS
+    public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO SIZE
         if (updateScreen && !level.isClientSide()) {
             for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);
-            Map<BlockPos, List<ItemStack>> map = network.getItemsOnNetwork(level, getUUID(), false);
+            Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
             int slot = line * 9;
-            for (Map.Entry<BlockPos, List<ItemStack>> m : map.entrySet()) {
+            for (Map.Entry<Item, Map<BlockPos, List<ItemStack>>> m : map.entrySet()) {
                 if (slot > items.getSlots()) break;
-                for (ItemStack stack : m.getValue()) {
-                    items.setStackInSlot(slot, stack);
-                    registry.put(slot, m.getKey());
-                    slot++;
+                int stackSize = 0;
+                List<BlockPos> locations = new ArrayList<>();
+                for (Map.Entry<BlockPos, List<ItemStack>> m2 : m.getValue().entrySet()) {
+                    locations.add(m2.getKey());
+                    for (ItemStack stack : m2.getValue()) stackSize += stack.getCount();
                 }
+                items.setStackInSlot(slot, m.getValue().get(locations.get(0)).get(0).copyWithCount(stackSize));
+                registry.put(slot, locations);
+                slot++;
             }
             updateScreen = false;
             markDirty();
         }
     }
 
-    private UncappedItemHandler createItemHandler() { // TODO COMBINE STACKS FROM MULTIPLE SOURCES
+    private UncappedItemHandler createItemHandler() {
         return new UncappedItemHandler(45) {
             protected void onContentsChanged(int slot) {
                 markDirty();
@@ -67,7 +74,7 @@ public class InterfaceBE extends BasePipeBE {
             public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
-                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot), null);
+                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null);
                     ItemStackHelper.removeStack((IItemHandlerModifiable) handler, stack, simulate);
                     onContentsChanged(slot);
                 }
@@ -109,7 +116,7 @@ public class InterfaceBE extends BasePipeBE {
         registry.forEach(((integer, pos) -> {
             CompoundTag nbt = new CompoundTag();
             nbt.putInt("int", integer);
-            nbt.put("pos", NbtUtils.writeBlockPos(pos));
+            nbt.put("positions", NBTHelper.writePosses(pos));
             registryTag.add(nbt);
         }));
         tag.put("registry", registryTag);
@@ -124,7 +131,7 @@ public class InterfaceBE extends BasePipeBE {
         }
         tag.getList("registry", Tag.TAG_COMPOUND).forEach(tag2 -> {
             CompoundTag nbt = (CompoundTag) tag2;
-            registry.put(nbt.getInt("int"), NbtUtils.readBlockPos(nbt.getCompound("pos")));
+            registry.put(nbt.getInt("int"), NBTHelper.readPosses(nbt.getCompound("positions")));
         });
         updateScreen = tag.getBoolean("update");
         line = tag.getInt("line");
