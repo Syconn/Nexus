@@ -8,6 +8,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class PipeNetwork {
 
     public void addStoragePoint(StoragePoint point) {
         for (StoragePoint point2 : storagePoints) {
-            if (point.matches(point2)) return;
+            if (point.equals(point2)) return;
         }
         storagePoints.add(point);
     }
@@ -79,6 +80,13 @@ public class PipeNetwork {
     }
 
     public void updateAllPoints(Level level, boolean update) {
+        if (update) {
+            List<StoragePoint> points = new ArrayList<>();
+            for (StoragePoint point : storagePoints)
+                if (!points.contains(point) && level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null)
+                    points.add(point);
+            storagePoints = points;
+        }
         storagePoints.forEach(p -> p.update(level));
         if (update) for (BlockPos pos : pipes) if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
     }

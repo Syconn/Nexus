@@ -43,7 +43,7 @@ public class InterfaceBE extends BasePipeBE {
     }
 
     public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO SIZE
-        if (updateScreen && !level.isClientSide()) {
+        if (updateScreen && !level.isClientSide()) { // TODO Fix when stack is less than 64
             for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);
             Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
@@ -82,17 +82,39 @@ public class InterfaceBE extends BasePipeBE {
             }
 
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {
+                ItemStack oldStack = getStackInSlot(slot);
                 super.setStackInSlot(slot, stack);
-                if (level != null && !level.isClientSide() && !updateScreen && !stack.isEmpty()) {
+                ItemStack addStack = stack.copyWithCount(stack.getCount() - oldStack.getCount());
+                if (level != null && !level.isClientSide() && !updateScreen && !addStack.isEmpty()) {
                     PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
-                    ItemStack result = stack.copy();
                     for (StoragePoint point : network.getStoragePoints()) {
                         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                        result = ItemHandlerHelper.insertItemStacked(handler, result, false);
+                        ItemHandlerHelper.insertItemStacked(handler, addStack, false);
                         onContentsChanged(slot);
-                        updateScreen();
                     }
                 }
+            }
+
+            public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.insertItem(slot, stack, simulate);
+                PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
+                ItemStack remainder = stack.copy();
+                for (StoragePoint point : network.getStoragePoints()) {
+                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                    remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+                }
+                return remainder;
+            }
+
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.isItemValid(slot, stack);
+                PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
+                ItemStack remainder = stack.copy();
+                for (StoragePoint point : network.getStoragePoints()) {
+                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                    remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+                }
+                return remainder.getCount() == insertItem(slot, stack, true).getCount();
             }
         };
     }
