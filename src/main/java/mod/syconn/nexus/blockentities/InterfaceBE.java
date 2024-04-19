@@ -85,14 +85,26 @@ public class InterfaceBE extends BasePipeBE {
                 super.setStackInSlot(slot, stack);
                 if (level != null && !level.isClientSide() && !updateScreen && !stack.isEmpty()) {
                     PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
-                    ItemStack result = stack.copy();
                     for (StoragePoint point : network.getStoragePoints()) {
                         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                        result = ItemHandlerHelper.insertItemStacked(handler, result, false);
+                        ItemHandlerHelper.insertItemStacked(handler, stack, false);
                         onContentsChanged(slot);
                         updateScreen();
                     }
                 }
+            }
+
+            public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) { //TODO NOT GOING TO WORK - Probly address in container menu
+                System.out.println(stack);
+                if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.insertItem(slot, stack, simulate);
+                PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
+                ItemStack remainder = stack.copy();
+                for (StoragePoint point : network.getStoragePoints()) {
+                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                    remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+//                    System.out.println(remainder);
+                }
+                return remainder;
             }
         };
     }

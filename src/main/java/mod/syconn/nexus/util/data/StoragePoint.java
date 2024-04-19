@@ -31,8 +31,8 @@ public class StoragePoint {
         update(level);
     }
 
-    public boolean matches(StoragePoint point) {
-        return inventoryPos.equals(point.inventoryPos) && pos.equals(point.pos);
+    public boolean equals(Object obj) {
+        return obj instanceof StoragePoint point && inventoryPos.equals(point.inventoryPos) && pos.equals(point.pos);
     }
 
     public StoragePoint(CompoundTag tag) {

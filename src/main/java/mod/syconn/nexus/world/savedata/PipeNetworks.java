@@ -43,6 +43,8 @@ public class PipeNetworks extends SavedData {
     }
 
     private UUID newLine(Level level, UUID oldUUID, List<BlockPos> positions, List<StoragePoint> points) {
+        pipe_network.get(oldUUID).updateAllPoints(level, true);
+        setDirty();
         if (pipe_network.containsKey(oldUUID) && pipe_network.get(oldUUID).removePosition(positions)) pipe_network.remove(oldUUID);
         UUID uuid = UUID.randomUUID();
         pipe_network.put(uuid, new PipeNetwork(uuid, positions));
@@ -53,14 +55,17 @@ public class PipeNetworks extends SavedData {
 
     private UUID conjoin(Level level, UUID... uuids) {
         UUID uuid = uuids[0];
+        pipe_network.get(uuid).updateAllPoints(level, true);
+        setDirty();
         for (int i = 1; i < uuids.length; i++) {
             if (pipe_network.containsKey(uuids[i])) {
                 pipe_network.get(uuid).addPositions(pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new));
                 for (BlockPos pos : pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new)) {
                     if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
                 }
+                pipe_network.get(uuids[i]).updateAllPoints(level, true);
                 pipe_network.get(uuid).addStoragePoints(pipe_network.get(uuids[i]).getStoragePoints());
-                if (uuid != uuids[i]) pipe_network.remove(uuids[i]);
+                pipe_network.remove(uuids[i]);
                 setDirty();
             }
         }
@@ -146,12 +151,12 @@ public class PipeNetworks extends SavedData {
             for (ItemStack stack : point.getItems()) {
                 if (map.containsKey(stack.getItem())) {
                     if (map.get(stack.getItem()).containsKey(point.getInventoryPos())) {
-                        List<ItemStack> stacks = map.get(stack.getItem()).get(point.getInventoryPos());
-                        stacks.addAll(point.getItems());
+                        List<ItemStack> stacks = new ArrayList<>(map.get(stack.getItem()).get(point.getInventoryPos()));
+                        stacks.add(stack);
                         map.get(stack.getItem()).put(point.getInventoryPos(), stacks);
                     } else {
                         Map<BlockPos, List<ItemStack>> m = map.get(stack.getItem());
-                        m.put(point.getInventoryPos(), new ArrayList<>(List.of(stack)));
+                        m.put(point.getInventoryPos(), List.of(stack));
                         map.put(stack.getItem(), m);
                     }
                 } else map.put(stack.getItem(), new HashMap<>(Map.of(point.getInventoryPos(), List.of(stack))));
