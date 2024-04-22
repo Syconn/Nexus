@@ -1,25 +1,36 @@
 package mod.syconn.nexus.world.menu;
 
 import mod.syconn.nexus.Registration;
+import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.util.data.PipeNetwork;
+import mod.syconn.nexus.util.data.StoragePoint;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class InterfaceMenu extends AbstractContainerMenu {
 
     private final BlockPos pos;
+    private final Level level;
     private IItemHandlerModifiable items;
 
     public InterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.INTERFACE_MENU.get(), windowId);
         this.pos = pos;
+        this.level = player.level();
 
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
             items = be.getItems();
@@ -97,20 +108,34 @@ public class InterfaceMenu extends AbstractContainerMenu {
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
                 if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack)) {
-                    int j = itemstack.getCount() + pStack.getCount();
-                    int maxSize = Math.min(slot.getMaxStackSize(), pStack.getMaxStackSize());
-                    if (j <= maxSize) {
-                        pStack.setCount(0);
-                        if (i < 45) items.setStackInSlot(i, itemstack.copyWithCount(j));
-                        else itemstack.setCount(j);
-                        slot.setChanged();
-                        flag = true;
-                    } else if (itemstack.getCount() < maxSize) {
-                        pStack.shrink(maxSize - itemstack.getCount());
-                        if (i < 45) items.setStackInSlot(i, itemstack.copyWithCount(maxSize));
-                        else itemstack.setCount(maxSize);
-                        slot.setChanged();
-                        flag = true;
+                    if (i < 45) { // TODO NEW NEEDS TESTING -LOOPING WHY
+                        if (level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
+                            PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(be.getUUID());
+                            ItemStack remainder = pStack.copy();
+                            for (StoragePoint point : network.getStoragePoints()) {
+                                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+                            }
+                            items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));
+                            pStack.setCount(remainder.getCount());
+                            slot.setChanged();
+                            flag = true;
+                            break;
+                        }
+                    } else {
+                        int j = itemstack.getCount() + pStack.getCount();
+                        int maxSize = Math.min(slot.getMaxStackSize(), pStack.getMaxStackSize());
+                        if (j <= maxSize) {
+                            pStack.setCount(0);
+                            itemstack.setCount(j);
+                            slot.setChanged();
+                            flag = true;
+                        } else if (itemstack.getCount() < maxSize) {
+                            pStack.shrink(maxSize - itemstack.getCount());
+                            itemstack.setCount(maxSize);
+                            slot.setChanged();
+                            flag = true;
+                        }
                     }
                 }
                 if (pReverseDirection) {

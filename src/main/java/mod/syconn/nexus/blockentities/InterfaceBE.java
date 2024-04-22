@@ -10,11 +10,11 @@ import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -43,8 +43,8 @@ public class InterfaceBE extends BasePipeBE {
     }
 
     public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO SIZE
-        if (updateScreen && !level.isClientSide()) { // TODO Fix when stack is less than 64
-            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
+        if (updateScreen && !level.isClientSide()) { // TODO ADDING OVER A STACK TO LESS THAN A STACK IS BROKEN
+            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY); // TODO Removing SOMEWHERE BETWEEN A STACK and LESS THAN TWO STACKS IS BROKEN
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);
             Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
             int slot = line * 9;
@@ -106,15 +106,15 @@ public class InterfaceBE extends BasePipeBE {
                 return remainder;
             }
 
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) { // TODO OVERFLOW STILL BROKE
                 if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.isItemValid(slot, stack);
                 PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
-                ItemStack remainder = stack.copy();
+                ItemStack remainder = stack;
                 for (StoragePoint point : network.getStoragePoints()) {
                     IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
                     remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
                 }
-                return remainder.getCount() == insertItem(slot, stack, true).getCount();
+                return !remainder.equals(stack);
             }
         };
     }
