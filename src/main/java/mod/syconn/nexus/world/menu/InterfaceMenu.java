@@ -3,6 +3,7 @@ package mod.syconn.nexus.world.menu;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
@@ -84,7 +85,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemstack1, 45, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-//                items.extractItem(index, 63, false);
+                items.extractItem(index, 63, false);
             } else if (!this.moveItemStackTo(itemstack1, 0, 45, false)) {
                 return ItemStack.EMPTY;
             }
@@ -99,6 +100,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
 
     protected boolean moveItemStackTo(ItemStack pStack, int pStartIndex, int pEndIndex, boolean pReverseDirection) {
         boolean flag = false;
+        boolean handled = false;
         int i = pStartIndex;
         if (pReverseDirection) {
             i = pEndIndex - 1;
@@ -107,36 +109,16 @@ public class InterfaceMenu extends AbstractContainerMenu {
             while(!pStack.isEmpty() && (pReverseDirection ? i >= pStartIndex : i < pEndIndex)) {
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
-                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack)) {
-                    if (i < 45) { // TODO NEW NEEDS TESTING -LOOPING WHY
-                        if (level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
-                            PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(be.getUUID());
-                            ItemStack remainder = pStack.copy();
-                            for (StoragePoint point : network.getStoragePoints()) {
-                                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
-                            }
-                            items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));
-                            pStack.setCount(remainder.getCount());
-                            slot.setChanged();
-                            flag = true;
-                            break;
-                        }
-                    } else {
-                        int j = itemstack.getCount() + pStack.getCount();
-                        int maxSize = Math.min(slot.getMaxStackSize(), pStack.getMaxStackSize());
-                        if (j <= maxSize) {
-                            pStack.setCount(0);
-                            itemstack.setCount(j);
-                            slot.setChanged();
-                            flag = true;
-                        } else if (itemstack.getCount() < maxSize) {
-                            pStack.shrink(maxSize - itemstack.getCount());
-                            itemstack.setCount(maxSize);
-                            slot.setChanged();
-                            flag = true;
-                        }
+                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 45 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
+                    ItemStack remainder = ItemStackHelper.canAddItemStack(pStack, (ServerLevel) level, be.getUUID());
+                    if (!ItemStack.matches(pStack, remainder)) {
+                        items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));
+                        pStack.setCount(remainder.getCount());
+                        slot.setChanged();
+                        flag = true;
                     }
+                    handled = true;
+                    break;
                 }
                 if (pReverseDirection) {
                     --i;
@@ -145,7 +127,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
                 }
             }
         }
-        if (!pStack.isEmpty()) {
+        if (!pStack.isEmpty() && !handled) {
             if (pReverseDirection) {
                 i = pEndIndex - 1;
             } else {
@@ -165,7 +147,6 @@ public class InterfaceMenu extends AbstractContainerMenu {
                     flag = true;
                     break;
                 }
-
                 if (pReverseDirection) {
                     --i;
                 } else {

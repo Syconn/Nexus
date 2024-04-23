@@ -43,8 +43,8 @@ public class InterfaceBE extends BasePipeBE {
     }
 
     public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO SIZE
-        if (updateScreen && !level.isClientSide()) { // TODO ADDING OVER A STACK TO LESS THAN A STACK IS BROKEN
-            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY); // TODO Removing SOMEWHERE BETWEEN A STACK and LESS THAN TWO STACKS IS BROKEN
+        if (updateScreen && !level.isClientSide()) { // TODO TEST 2 Connections to one storage block
+            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);
             Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
             int slot = line * 9;
@@ -71,7 +71,7 @@ public class InterfaceBE extends BasePipeBE {
                 markDirty();
             }
 
-            public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
                     IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null);
@@ -89,32 +89,21 @@ public class InterfaceBE extends BasePipeBE {
                     PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
                     for (StoragePoint point : network.getStoragePoints()) {
                         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                        ItemHandlerHelper.insertItemStacked(handler, addStack, false);
+                        ItemStack stack2 = ItemHandlerHelper.insertItemStacked(handler, addStack, false);
                         onContentsChanged(slot);
+                        if (stack2.isEmpty()) break;
                     }
                 }
             }
 
-            public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
                 if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.insertItem(slot, stack, simulate);
-                PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
-                ItemStack remainder = stack.copy();
-                for (StoragePoint point : network.getStoragePoints()) {
-                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                    remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
-                }
-                return remainder;
+                return ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID());
             }
 
             public boolean isItemValid(int slot, @NotNull ItemStack stack) { // TODO OVERFLOW STILL BROKE
                 if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.isItemValid(slot, stack);
-                PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
-                ItemStack remainder = stack;
-                for (StoragePoint point : network.getStoragePoints()) {
-                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                    remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
-                }
-                return !remainder.equals(stack);
+                return !ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID()).equals(stack);
             }
         };
     }

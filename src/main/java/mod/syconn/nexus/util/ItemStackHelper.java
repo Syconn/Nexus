@@ -1,7 +1,13 @@
 package mod.syconn.nexus.util;
 
+import mod.syconn.nexus.util.data.PipeNetwork;
+import mod.syconn.nexus.util.data.StoragePoint;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -11,12 +17,23 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static net.neoforged.neoforge.items.ItemHandlerHelper.canItemStacksStack;
 
 public class ItemStackHelper {
 
-    public static List<ItemStack> combineItemsInStorage(IItemHandler handler, @Nullable Item ignore) {
+    public static ItemStack canAddItemStack(ItemStack pStack, ServerLevel level, UUID uuid) {
+        PipeNetwork network = PipeNetworks.get(level).getPipeNetwork(uuid);
+        ItemStack remainder = pStack.copy();
+        for (StoragePoint point : network.getStoragePoints()) {
+            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+            remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+        }
+        return remainder;
+    }
+
+    public static List<ItemStack> combineItemsInStorage(IItemHandler handler, Item ignore) {
         List<ItemStack> stacks = new ArrayList<>();
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack stack = handler.getStackInSlot(i);
@@ -34,8 +51,7 @@ public class ItemStackHelper {
         return stacks;
     }
 
-    @NotNull
-    public static ItemStack removeStack(IItemHandlerModifiable dest, @NotNull ItemStack stack, boolean simulate) {
+    public static ItemStack removeStack(IItemHandlerModifiable dest, ItemStack stack, boolean simulate) {
         if (dest == null || stack.isEmpty())
             return ItemStack.EMPTY;
         for (int i = 0; i < dest.getSlots(); i++) {
