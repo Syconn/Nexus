@@ -166,7 +166,7 @@ public class PipeNetworks extends SavedData {
     }
 
     public void updateAllPoints(Level level, UUID uuid, boolean update) {
-        pipe_network.get(uuid).updateAllPoints(level, update);
+        if (pipe_network.containsKey(uuid)) pipe_network.get(uuid).updateAllPoints(level, update);
     }
 
     private static PipeNetworks create() {

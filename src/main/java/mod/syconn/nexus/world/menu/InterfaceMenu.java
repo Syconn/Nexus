@@ -1,12 +1,8 @@
 package mod.syconn.nexus.world.menu;
 
 import mod.syconn.nexus.Registration;
-import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.util.ItemStackHelper;
-import mod.syconn.nexus.util.data.PipeNetwork;
-import mod.syconn.nexus.util.data.StoragePoint;
-import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -16,10 +12,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class InterfaceMenu extends AbstractContainerMenu {
