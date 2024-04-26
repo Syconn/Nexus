@@ -67,16 +67,17 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
                 flag1 = true;
             }
         }
-        if (!itemstack.isEmpty()) {
-            String[] arr = {"", "k", "m", "b", "t", "p", "e"};
+        if (value > 1) {
+            String[] arr = {"", "k", "m", "b", "t"};
             int index = 0;
             while ((value / 1000) >= 1) {
                 value = value / 1000;
                 index++;
             }
-            DecimalFormat decimalFormat = new DecimalFormat("#.#");
+            if (index > 4) index = 0;
+            DecimalFormat decimalFormat = new DecimalFormat("#");
             amount = String.format("%s%s", decimalFormat.format(value), arr[index]);
-        }
+        } else amount = null;
         if (!flag1) {
             int j1 = pSlot.x + pSlot.y * this.imageWidth;
             if (pSlot.isFake()) pGuiGraphics.renderFakeItem(itemstack, i, j, j1);

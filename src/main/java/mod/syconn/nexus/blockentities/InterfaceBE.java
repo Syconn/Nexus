@@ -41,23 +41,26 @@ public class InterfaceBE extends BasePipeBE {
         super(Registration.INTERFACE_BE.get(), pos, state);
     }
 
-    public void tickServer() { // TODO EASY WAY MAYBE IS SET CLIENT SIDE VIEW OF ITEMS TO SIZE
-        if (updateScreen && !level.isClientSide()) { // TODO TEST 2 Connections to one storage block
+    public void tickServer() {
+        if (updateScreen && !level.isClientSide()) {
             for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);
             Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
             int slot = line * 9;
+            int spot = 0;
             for (Map.Entry<Item, Map<BlockPos, List<ItemStack>>> m : map.entrySet()) {
-                if (slot > items.getSlots()) break;
-                int stackSize = 0;
-                List<BlockPos> locations = new ArrayList<>();
-                for (Map.Entry<BlockPos, List<ItemStack>> m2 : m.getValue().entrySet()) {
-                    locations.add(m2.getKey());
-                    for (ItemStack stack : m2.getValue()) stackSize += stack.getCount();
+                if (slot >= items.getSlots()) break;
+                else if (spot >= slot) {
+                    int stackSize = 0;
+                    List<BlockPos> locations = new ArrayList<>();
+                    for (Map.Entry<BlockPos, List<ItemStack>> m2 : m.getValue().entrySet()) {
+                        locations.add(m2.getKey());
+                        for (ItemStack stack : m2.getValue()) stackSize += stack.getCount();
+                    }
+                    items.setStackInSlot(slot, m.getValue().get(locations.get(0)).get(0).copyWithCount(stackSize));
+                    registry.put(slot, locations);
                 }
-                items.setStackInSlot(slot, m.getValue().get(locations.get(0)).get(0).copyWithCount(stackSize));
-                registry.put(slot, locations);
-                slot++;
+                spot++;
             }
             updateScreen = false;
             markDirty();

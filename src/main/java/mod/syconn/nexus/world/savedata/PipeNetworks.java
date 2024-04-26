@@ -30,11 +30,7 @@ public class PipeNetworks extends SavedData {
             pipe_network.put(uuid, new PipeNetwork(uuid, pos));
             if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
             for (Direction d : Direction.values()) {
-                if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be) {
-                    if (be.getUUID() != null) {
-                        uuid = conjoin(level, uuid, be.getUUID());
-                    }
-                }
+                if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be && be.getUUID() != null && !be.getUUID().equals(uuid)) uuid = conjoin(level, uuid, be.getUUID());
             }
             setDirty();
             return uuid;
@@ -147,19 +143,21 @@ public class PipeNetworks extends SavedData {
     public Map<Item, Map<BlockPos, List<ItemStack>>> getItemsOnNetwork(Level level, UUID uuid, boolean update) {
         updateAllPoints(level, uuid, update);
         Map<Item, Map<BlockPos, List<ItemStack>>> map = new HashMap<>();
-        for(StoragePoint point : pipe_network.get(uuid).getStoragePoints()) {
-            for (ItemStack stack : point.getItems()) {
-                if (map.containsKey(stack.getItem())) {
-                    if (map.get(stack.getItem()).containsKey(point.getInventoryPos())) {
-                        List<ItemStack> stacks = new ArrayList<>(map.get(stack.getItem()).get(point.getInventoryPos()));
-                        stacks.add(stack);
-                        map.get(stack.getItem()).put(point.getInventoryPos(), stacks);
-                    } else {
-                        Map<BlockPos, List<ItemStack>> m = map.get(stack.getItem());
-                        m.put(point.getInventoryPos(), List.of(stack));
-                        map.put(stack.getItem(), m);
-                    }
-                } else map.put(stack.getItem(), new HashMap<>(Map.of(point.getInventoryPos(), List.of(stack))));
+        if (pipe_network.containsKey(uuid)) {
+            for(StoragePoint point : pipe_network.get(uuid).getStorageLocations()) {
+                for (ItemStack stack : point.getItems()) {
+                    if (map.containsKey(stack.getItem())) {
+                        if (map.get(stack.getItem()).containsKey(point.getInventoryPos())) {
+                            List<ItemStack> stacks = new ArrayList<>(map.get(stack.getItem()).get(point.getInventoryPos()));
+                            stacks.add(stack);
+                            map.get(stack.getItem()).put(point.getInventoryPos(), stacks);
+                        } else {
+                            Map<BlockPos, List<ItemStack>> m = map.get(stack.getItem());
+                            m.put(point.getInventoryPos(), List.of(stack));
+                            map.put(stack.getItem(), m);
+                        }
+                    } else map.put(stack.getItem(), new HashMap<>(Map.of(point.getInventoryPos(), List.of(stack))));
+                }
             }
         }
         return map;

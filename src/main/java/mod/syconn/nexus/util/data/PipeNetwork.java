@@ -79,6 +79,18 @@ public class PipeNetwork {
         return storagePoints;
     }
 
+    public List<StoragePoint> getStorageLocations() {
+        List<StoragePoint> storageLoc = new ArrayList<>();
+        List<BlockPos> positionLoc = new ArrayList<>();
+        for (StoragePoint point : storagePoints) {
+            if (!positionLoc.contains(point.getInventoryPos())) {
+                storageLoc.add(point);
+                positionLoc.add(point.getInventoryPos());
+            }
+        }
+        return storageLoc;
+    }
+
     public void updateAllPoints(Level level, boolean update) {
         if (update) {
             List<StoragePoint> points = new ArrayList<>();
