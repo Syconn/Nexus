@@ -128,6 +128,10 @@ public class PipeNetworks extends SavedData {
         return false;
     }
 
+//    public boolean hasWorkingNexusBlock(UUID uuid) { TODO IMPLEMENT
+//
+//    }
+
     public CompoundTag save(CompoundTag pCompoundTag) {
         ListTag network = new ListTag();
         pipe_network.forEach(((uuid, pipeNetwork) -> {

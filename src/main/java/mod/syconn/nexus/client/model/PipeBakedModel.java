@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.block.model.MultiVariant;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -25,6 +26,7 @@ import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,6 +130,9 @@ public class PipeBakedModel implements IDynamicBakedModel {
                 east = state.getValue(PipeAttachmentBlock.EAST);
                 up = state.getValue(PipeAttachmentBlock.UP);
                 down = state.getValue(PipeAttachmentBlock.DOWN);
+            } else if (BuiltInRegistries.BLOCK.get(new ResourceLocation(Nexus.MODID, context.getModelName().split("/")[1])) instanceof CustomRender) {
+                north = CABLE;
+                south = west = east = up = down = NONE;
             } else {
                 if (facade) {
                     quads.add(quad(v(0, 1, 1), v(1, 1, 1), v(1, 1, 0), v(0, 1, 0), spriteSide));
@@ -288,6 +293,14 @@ public class PipeBakedModel implements IDynamicBakedModel {
 
         if (state != null && state.getBlock() instanceof CustomRender cr) {
             BlockState blockState = cr.getBlock().defaultBlockState().setValue(BlockStateProperties.FACING, state.getValue(BlockStateProperties.FACING));
+            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(blockState);
+            if (side == null) {
+                try {
+                    quads.addAll(model.getQuads(blockState, side, rand, ModelData.EMPTY, layer));
+                } catch (Exception ignored) {}
+            }
+        } else if (BuiltInRegistries.BLOCK.get(new ResourceLocation(Nexus.MODID, context.getModelName().split("/")[1])) instanceof CustomRender cr) {
+            BlockState blockState = cr.getBlock().defaultBlockState().setValue(BlockStateProperties.FACING, Direction.SOUTH);
             BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(blockState);
             if (side == null) {
                 try {

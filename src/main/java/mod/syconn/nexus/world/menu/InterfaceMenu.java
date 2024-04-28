@@ -20,6 +20,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
     private final BlockPos pos;
     private final Level level;
     private IItemHandlerModifiable items;
+    private int invSize;
 
     public InterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.INTERFACE_MENU.get(), windowId);
@@ -28,6 +29,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
 
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
             items = be.getItems();
+            invSize = be.getInvSize();
             int index = 0;
             for (int y = 0; y < 5; y++) {
                 for (int x = 0; x < 9; x++) {
@@ -35,12 +37,25 @@ public class InterfaceMenu extends AbstractContainerMenu {
                     index++;
                 }
             }
+//            addSlot(new SlotItemHandler(items, 45, 9 + 18 * 6, 18 + 18) {
+//                public boolean mayPickup(Player playerIn) {
+//                    return false;
+//                }
+//
+//                public boolean isFake() {
+//                    return true;
+//                }
+//            });
         }
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
     }
 
     public BlockPos getPos() {
         return pos;
+    }
+
+    public int getInventorySize() {
+        return invSize;
     }
 
     private void layoutPlayerInventorySlots(Container playerInventory, int leftCol, int topRow) {

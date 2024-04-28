@@ -34,6 +34,7 @@ public class InterfaceBE extends BasePipeBE {
     private final UncappedItemHandler items = createItemHandler();
     private final Lazy<IItemHandler> itemHandler = Lazy.of(() -> items);
     private final Map<Integer, List<BlockPos>> registry = new HashMap<>();
+    private int invSize;
     private int line = 0;
     private boolean updateScreen = false;
 
@@ -42,15 +43,17 @@ public class InterfaceBE extends BasePipeBE {
     }
 
     public void tickServer() {
-        if (updateScreen && !level.isClientSide()) {
-            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
-            PipeNetworks network = PipeNetworks.get((ServerLevel) level);
+        if (updateScreen && !level.isClientSide()) { // TODO FOUND DUPE BUG WITH FULL INV
+            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY); // TODO CANT INSERT ITEMS IF INVENTORY FULL ON SCREEN BYT NOT STORAGE - IDEA USE FAKE SLOT
+            PipeNetworks network = PipeNetworks.get((ServerLevel) level); // TODO IMPLEMENT NEXUS BLOCK
             Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
-            int slot = line * 9;
-            int spot = 0;
+            invSize = map.entrySet().size();
+            int startIndex = line * 9;
+            int slotDelay = 0;
+            int slot = 0;
             for (Map.Entry<Item, Map<BlockPos, List<ItemStack>>> m : map.entrySet()) {
                 if (slot >= items.getSlots()) break;
-                else if (spot >= slot) {
+                else if (slotDelay >= startIndex) {
                     int stackSize = 0;
                     List<BlockPos> locations = new ArrayList<>();
                     for (Map.Entry<BlockPos, List<ItemStack>> m2 : m.getValue().entrySet()) {
@@ -59,9 +62,12 @@ public class InterfaceBE extends BasePipeBE {
                     }
                     items.setStackInSlot(slot, m.getValue().get(locations.get(0)).get(0).copyWithCount(stackSize));
                     registry.put(slot, locations);
+                    slot++;
                 }
-                spot++;
+                slotDelay++;
             }
+
+            line = 0;
             updateScreen = false;
             markDirty();
         }
@@ -103,7 +109,7 @@ public class InterfaceBE extends BasePipeBE {
                 return ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID());
             }
 
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) { // TODO OVERFLOW STILL BROKE
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.isItemValid(slot, stack);
                 return !ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID()).equals(stack);
             }
@@ -122,6 +128,20 @@ public class InterfaceBE extends BasePipeBE {
         return itemHandler.get();
     }
 
+    public int getInvSize() {
+        return invSize;
+    }
+
+    public double getLine() {
+        return line;
+    }
+
+    public void setLine(int line) {
+        this.line = line;
+        updateScreen();
+        markDirty();
+    }
+
     protected void saveClientData(CompoundTag tag) {
         super.saveClientData(tag);
         tag.put(ITEMS_TAG, items.serializeNBT());
@@ -135,6 +155,7 @@ public class InterfaceBE extends BasePipeBE {
         tag.put("registry", registryTag);
         tag.putBoolean("update", updateScreen);
         tag.putInt("line", line);
+        tag.putInt("invSize", invSize);
     }
 
     protected void loadClientData(CompoundTag tag) {
@@ -148,5 +169,6 @@ public class InterfaceBE extends BasePipeBE {
         });
         updateScreen = tag.getBoolean("update");
         line = tag.getInt("line");
+        invSize = tag.getInt("invSize");
     }
 }

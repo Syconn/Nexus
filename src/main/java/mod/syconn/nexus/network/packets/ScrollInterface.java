@@ -1,31 +1,26 @@
 package mod.syconn.nexus.network.packets;
 
 import mod.syconn.nexus.Nexus;
+import mod.syconn.nexus.blockentities.InterfaceBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 
-public record PacketTest(BlockPos pos, int button) implements CustomPacketPayload {
+public record ScrollInterface(BlockPos pos, float scrollOffset) implements CustomPacketPayload {
 
-    public static final ResourceLocation ID = new ResourceLocation(Nexus.MODID, "test");
+    public static ResourceLocation ID = new ResourceLocation(Nexus.MODID, "scroll_interface");
 
-    public static PacketTest create(FriendlyByteBuf buf) {
-        return new PacketTest(buf.readBlockPos(), buf.readByte());
+    public static ScrollInterface create(FriendlyByteBuf buf) {
+        return new ScrollInterface(buf.readBlockPos(), buf.readFloat());
     }
 
-    public static PacketTest create(BlockPos pos, int button) {
-        return new PacketTest(pos, button);
-    }
-
-    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
-        buf.writeByte(button);
+        buf.writeFloat(scrollOffset);
     }
 
-    @Override
     public ResourceLocation id() {
         return ID;
     }
@@ -33,8 +28,10 @@ public record PacketTest(BlockPos pos, int button) implements CustomPacketPayloa
     public void handle(PlayPayloadContext ctx) {
         ctx.workHandler().submitAsync(() -> {
             ctx.player().ifPresent(player -> {
-                //CODE
-                return;
+                if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
+                    int line = (int) Math.ceil(be.getInvSize() / 9.0) - 5;
+                    be.setLine((int) (line * scrollOffset));
+                }
             });
         });
     }
