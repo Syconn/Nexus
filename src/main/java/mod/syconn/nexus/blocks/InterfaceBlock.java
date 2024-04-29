@@ -61,7 +61,7 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
             BlockEntity be = pLevel.getBlockEntity(pPos);
-            if (be instanceof InterfaceBE ie && pState.getValue(ACTIVE)) {
+            if (be instanceof InterfaceBE && pState.getValue(ACTIVE)) {
                 ((InterfaceBE) be).updateScreen();
                 MenuProvider containerProvider = new MenuProvider() {
                     public Component getDisplayName() {
