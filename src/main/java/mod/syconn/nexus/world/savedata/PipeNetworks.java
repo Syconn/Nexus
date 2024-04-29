@@ -1,6 +1,7 @@
 package mod.syconn.nexus.world.savedata;
 
 import mod.syconn.nexus.blockentities.BasePipeBE;
+import mod.syconn.nexus.blocks.NexusBlock;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import net.minecraft.core.BlockPos;
@@ -29,9 +30,7 @@ public class PipeNetworks extends SavedData {
             UUID uuid = UUID.randomUUID();
             pipe_network.put(uuid, new PipeNetwork(uuid, pos));
             if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
-            for (Direction d : Direction.values()) {
-                if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be && be.getUUID() != null && !be.getUUID().equals(uuid)) uuid = conjoin(level, uuid, be.getUUID());
-            }
+            for (Direction d : Direction.values()) if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be && be.getUUID() != null && !be.getUUID().equals(uuid)) uuid = conjoin(level, uuid, be.getUUID());
             setDirty();
             return uuid;
         }
@@ -56,9 +55,7 @@ public class PipeNetworks extends SavedData {
         for (int i = 1; i < uuids.length; i++) {
             if (pipe_network.containsKey(uuids[i])) {
                 pipe_network.get(uuid).addPositions(pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new));
-                for (BlockPos pos : pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new)) {
-                    if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
-                }
+                for (BlockPos pos : pipe_network.get(uuids[i]).getPipes().toArray(BlockPos[]::new)) if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
                 pipe_network.get(uuids[i]).updateAllPoints(level, true);
                 pipe_network.get(uuid).addStoragePoints(pipe_network.get(uuids[i]).getStoragePoints());
                 pipe_network.remove(uuids[i]);
@@ -82,13 +79,6 @@ public class PipeNetworks extends SavedData {
             setDirty();
         }
         return delete;
-    }
-
-    public void addStoragePoint(Level level, BlockPos pos, BlockPos inventoryPos, UUID uuid) {
-        if (pipe_network.containsKey(uuid)) {
-            pipe_network.get(uuid).addStoragePoint(new StoragePoint(pos, inventoryPos, level));
-            setDirty();
-        }
     }
 
     private void validLine(Level level, UUID uuid) {
@@ -116,6 +106,13 @@ public class PipeNetworks extends SavedData {
         }
     }
 
+    public void addStoragePoint(Level level, BlockPos pos, BlockPos inventoryPos, UUID uuid) {
+        if (pipe_network.containsKey(uuid)) {
+            pipe_network.get(uuid).addStoragePoint(new StoragePoint(pos, inventoryPos, level));
+            setDirty();
+        }
+    }
+
     public List<BlockPos> getAllPipesByUUID(UUID uuid, Level level) {
         if (pipe_network.containsKey(uuid)) return pipe_network.get(uuid).getPipes();
         return List.of();
@@ -128,20 +125,9 @@ public class PipeNetworks extends SavedData {
         return false;
     }
 
-//    public boolean hasWorkingNexusBlock(UUID uuid) { TODO IMPLEMENT
-//
-//    }
-
-    public CompoundTag save(CompoundTag pCompoundTag) {
-        ListTag network = new ListTag();
-        pipe_network.forEach(((uuid, pipeNetwork) -> {
-            CompoundTag tag = new CompoundTag();
-            tag.putUUID("uuid", uuid);
-            tag.put("network", pipeNetwork.save());
-            network.add(tag);
-        }));
-        pCompoundTag.put("network", network);
-        return pCompoundTag;
+    public List<BlockPos> getNexusBlocks(Level level, UUID uuid) {
+        if (pipe_network.containsKey(uuid)) return pipe_network.get(uuid).getNexusPoints(level);
+        return List.of();
     }
 
     public Map<Item, Map<BlockPos, List<ItemStack>>> getItemsOnNetwork(Level level, UUID uuid, boolean update) {
@@ -175,6 +161,10 @@ public class PipeNetworks extends SavedData {
         return new PipeNetworks();
     }
 
+    public static PipeNetworks get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(PipeNetworks::create, PipeNetworks::load), "pipe_network");
+    }
+
     private static PipeNetworks load(CompoundTag tag) {
         PipeNetworks data = create();
         Map<UUID, PipeNetwork> networkMap = new HashMap<>();
@@ -186,7 +176,15 @@ public class PipeNetworks extends SavedData {
         return data;
     }
 
-    public static PipeNetworks get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(PipeNetworks::create, PipeNetworks::load), "pipe_network");
+    public CompoundTag save(CompoundTag pCompoundTag) {
+        ListTag network = new ListTag();
+        pipe_network.forEach(((uuid, pipeNetwork) -> {
+            CompoundTag tag = new CompoundTag();
+            tag.putUUID("uuid", uuid);
+            tag.put("network", pipeNetwork.save());
+            network.add(tag);
+        }));
+        pCompoundTag.put("network", network);
+        return pCompoundTag;
     }
 }

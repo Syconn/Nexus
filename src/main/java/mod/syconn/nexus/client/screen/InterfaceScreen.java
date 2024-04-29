@@ -29,7 +29,7 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
     private float scrollOffs;
     private boolean scrolling;
 
-    public InterfaceScreen(InterfaceMenu menu, Inventory inventory, Component title) { // TODO SCROLL WITH JUST WHEEL ON MOUSE
+    public InterfaceScreen(InterfaceMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         imageWidth = 194;
         imageHeight = 203;

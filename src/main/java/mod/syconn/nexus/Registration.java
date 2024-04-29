@@ -3,6 +3,7 @@ package mod.syconn.nexus;
 import mod.syconn.nexus.blockentities.ExternalStorageBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.blockentities.ItemPipeBE;
+import mod.syconn.nexus.blockentities.NexusBE;
 import mod.syconn.nexus.blocks.*;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -52,6 +53,7 @@ public class Registration {
     public static final Supplier<BlockEntityType<ItemPipeBE>> ITEM_PIPE_BE = BLOCK_ENTITIES.register("item_pipe", () -> BlockEntityType.Builder.of(ItemPipeBE::new, ITEM_PIPE.get()).build(null));
     public static final Supplier<BlockEntityType<ExternalStorageBE>> EXTERNAL_STORAGE_BE = BLOCK_ENTITIES.register("external_storage", () -> BlockEntityType.Builder.of(ExternalStorageBE::new, EXTERNAL_STORAGE.get()).build(null));
     public static final Supplier<BlockEntityType<InterfaceBE>> INTERFACE_BE = BLOCK_ENTITIES.register("interface", () -> BlockEntityType.Builder.of(InterfaceBE::new, INTERFACE.get()).build(null));
+    public static final Supplier<BlockEntityType<NexusBE>> NEXUS_BE = BLOCK_ENTITIES.register("nexus", () -> BlockEntityType.Builder.of(NexusBE::new, NEXUS.get()).build(null));
 
     public static final TagKey<Block> PIPES = BlockTags.create(new ResourceLocation(MODID, "pipes"));
     public static final TagKey<Block> PIPE_CONNECTIVE = BlockTags.create(new ResourceLocation(MODID, "pipe_connective"));

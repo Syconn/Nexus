@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.InterfaceBlock;
+import mod.syconn.nexus.blocks.PipeAttachmentBlock;
 import mod.syconn.nexus.client.loader.PipeModelLoader;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,12 +34,13 @@ public class BlockStateGen extends BlockStateProvider {
 
     private void registerDynamicStates() {
         simpleBlockItem(Registration.INTERFACE.get(), generated(Registration.INTERFACE.get()));
-        getVariantBuilder(Registration.INTERFACE.get()).forAllStates(state -> {
+        getVariantBuilder(Registration.INTERFACE.get()).forAllStatesExcept(state -> {
             Direction direction = state.getValue(InterfaceBlock.FACING);
-            return ConfiguredModel.builder().modelFile(generated(Registration.INTERFACE.get()))
+            boolean active = state.getValue(InterfaceBlock.ACTIVE);
+            return ConfiguredModel.builder().modelFile(generated(Registration.INTERFACE.get(), !active ? "_off" : ""))
                     .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
                     .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
-        });
+        }, PipeAttachmentBlock.DOWN, PipeAttachmentBlock.EAST, PipeAttachmentBlock.WEST, PipeAttachmentBlock.NORTH, PipeAttachmentBlock.UP, PipeAttachmentBlock.SOUTH);
         getVariantBuilder(Registration.EXTERNAL_STORAGE_DUMMY.get()).forAllStates(state -> {
             Direction direction = state.getValue(InterfaceBlock.FACING);
             return ConfiguredModel.builder().modelFile(generated(Registration.EXTERNAL_STORAGE_DUMMY.get()))
@@ -69,6 +71,10 @@ public class BlockStateGen extends BlockStateProvider {
 
     private ModelFile generated(Block block) {
         return new ModelFile.UncheckedModelFile(modLoc("block/" + BuiltInRegistries.BLOCK.getKey(block).getPath()));
+    }
+
+    private ModelFile generated(Block block, String s) {
+        return new ModelFile.UncheckedModelFile(modLoc("block/" + BuiltInRegistries.BLOCK.getKey(block).getPath() + s));
     }
 
     public static class PipeLoaderBuilder extends CustomLoaderBuilder<BlockModelBuilder> {

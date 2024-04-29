@@ -17,13 +17,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(Nexus.MODID)
-public class Nexus
-{
+public class Nexus {
     public static final String MODID = "nexus";
-    public static final Logger LOGGER = LogManager.getLogger();
 
-    public Nexus(IEventBus modEventBus)
-    {
+    public Nexus(IEventBus modEventBus) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::gatherData);
         modEventBus.addListener(Channel::onRegisterPayloadHandler);
@@ -43,8 +40,7 @@ public class Nexus
 
     }
 
-    public void gatherData(GatherDataEvent event)
-    {
+    public void gatherData(GatherDataEvent event) {
         var fileHelper = event.getExistingFileHelper();
         var pack = event.getGenerator().getVanillaPack(true);
         pack.addProvider(LangGen::new);
