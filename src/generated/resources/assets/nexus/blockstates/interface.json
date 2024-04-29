@@ -1,25 +1,94 @@
 {
   "variants": {
-    "facing=down": {
+    "active=false,facing=down,waterlogged=false": {
+      "model": "nexus:block/interface_off",
+      "x": 270
+    },
+    "active=false,facing=down,waterlogged=true": {
+      "model": "nexus:block/interface_off",
+      "x": 270
+    },
+    "active=false,facing=east,waterlogged=false": {
+      "model": "nexus:block/interface_off",
+      "y": 270
+    },
+    "active=false,facing=east,waterlogged=true": {
+      "model": "nexus:block/interface_off",
+      "y": 270
+    },
+    "active=false,facing=north,waterlogged=false": {
+      "model": "nexus:block/interface_off",
+      "y": 180
+    },
+    "active=false,facing=north,waterlogged=true": {
+      "model": "nexus:block/interface_off",
+      "y": 180
+    },
+    "active=false,facing=south,waterlogged=false": {
+      "model": "nexus:block/interface_off"
+    },
+    "active=false,facing=south,waterlogged=true": {
+      "model": "nexus:block/interface_off"
+    },
+    "active=false,facing=up,waterlogged=false": {
+      "model": "nexus:block/interface_off",
+      "x": 90
+    },
+    "active=false,facing=up,waterlogged=true": {
+      "model": "nexus:block/interface_off",
+      "x": 90
+    },
+    "active=false,facing=west,waterlogged=false": {
+      "model": "nexus:block/interface_off",
+      "y": 90
+    },
+    "active=false,facing=west,waterlogged=true": {
+      "model": "nexus:block/interface_off",
+      "y": 90
+    },
+    "active=true,facing=down,waterlogged=false": {
       "model": "nexus:block/interface",
       "x": 270
     },
-    "facing=east": {
+    "active=true,facing=down,waterlogged=true": {
+      "model": "nexus:block/interface",
+      "x": 270
+    },
+    "active=true,facing=east,waterlogged=false": {
       "model": "nexus:block/interface",
       "y": 270
     },
-    "facing=north": {
+    "active=true,facing=east,waterlogged=true": {
+      "model": "nexus:block/interface",
+      "y": 270
+    },
+    "active=true,facing=north,waterlogged=false": {
       "model": "nexus:block/interface",
       "y": 180
     },
-    "facing=south": {
+    "active=true,facing=north,waterlogged=true": {
+      "model": "nexus:block/interface",
+      "y": 180
+    },
+    "active=true,facing=south,waterlogged=false": {
       "model": "nexus:block/interface"
     },
-    "facing=up": {
+    "active=true,facing=south,waterlogged=true": {
+      "model": "nexus:block/interface"
+    },
+    "active=true,facing=up,waterlogged=false": {
       "model": "nexus:block/interface",
       "x": 90
     },
-    "facing=west": {
+    "active=true,facing=up,waterlogged=true": {
+      "model": "nexus:block/interface",
+      "x": 90
+    },
+    "active=true,facing=west,waterlogged=false": {
+      "model": "nexus:block/interface",
+      "y": 90
+    },
+    "active=true,facing=west,waterlogged=true": {
       "model": "nexus:block/interface",
       "y": 90
     }
