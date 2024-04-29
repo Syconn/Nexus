@@ -4,9 +4,12 @@ import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -24,20 +27,24 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.checkerframework.checker.units.qual.A;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     public InterfaceBlock() {
         super(BlockBehaviour.Properties.of().mapColor(MapColor.RAW_IRON).requiresCorrectToolForDrops().strength(2.5F, 3.0F));
-        registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(ACTIVE, false));
     }
 
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
@@ -54,28 +61,24 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
             BlockEntity be = pLevel.getBlockEntity(pPos);
-            if (be instanceof InterfaceBE) {
+            if (be instanceof InterfaceBE && pState.getValue(ACTIVE)) {
                 ((InterfaceBE) be).updateScreen();
                 MenuProvider containerProvider = new MenuProvider() {
                     public Component getDisplayName() {
                         return Component.literal("Nexus Screen");
                     }
-
-                    public AbstractContainerMenu createMenu(int windowId, Inventory playerInventory, Player playerEntity) {
-                        return new InterfaceMenu(windowId, playerEntity, pPos);
-                    }
+                    public AbstractContainerMenu createMenu(int windowId, Inventory playerInventory, Player playerEntity) { return new InterfaceMenu(windowId, playerEntity, pPos); }
                 };
                 pPlayer.openMenu(containerProvider, buf -> buf.writeBlockPos(pPos));
-            } else {
-                throw new IllegalStateException("container provider is missing!");
             }
         }
         return InteractionResult.SUCCESS;
     }
 
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> pBuilder) {
         super.createBlockStateDefinition(pBuilder);
         pBuilder.add(FACING);
+        pBuilder.add(ACTIVE);
     }
 
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
@@ -85,7 +88,7 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
 
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
         if (super.getStateForPlacement(pContext).setValue(FACING, pContext.getClickedFace()).canSurvive(pContext.getLevel(), pContext.getClickedPos()))
-            return super.getStateForPlacement(pContext).setValue(FACING, pContext.getClickedFace());
+            return super.getStateForPlacement(pContext).setValue(FACING, pContext.getClickedFace()).setValue(ACTIVE, false);
         return null;
     }
 
@@ -101,7 +104,6 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
         return pState.rotate(pMirror.getRotation(pState.getValue(FACING)));
     }
 
-    @Nullable
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return new InterfaceBE(pPos, pState);
     }

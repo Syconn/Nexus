@@ -1,6 +1,7 @@
 package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
+import mod.syconn.nexus.blocks.InterfaceBlock;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
@@ -37,6 +38,7 @@ public class InterfaceBE extends BasePipeBE {
     private int invSize;
     private int line = 0;
     private boolean updateScreen = false;
+    private int tick = 0;
 
     public InterfaceBE(BlockPos pos, BlockState state) {
         super(Registration.INTERFACE_BE.get(), pos, state);
@@ -70,6 +72,14 @@ public class InterfaceBE extends BasePipeBE {
             line = 0;
             updateScreen = false;
             markDirty();
+        }
+
+        if (!level.isClientSide()) {
+            tick++;
+            if (tick >= 100) {
+                level.setBlock(worldPosition, getBlockState().setValue(InterfaceBlock.ACTIVE, !PipeNetworks.get((ServerLevel) level).getNexusBlocks(level, getUUID()).isEmpty()), 2);
+                tick = 0;
+            }
         }
     }
 
