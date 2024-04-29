@@ -1,13 +1,14 @@
 package mod.syconn.nexus.util.data;
 
 import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.blocks.NexusBlock;
 import mod.syconn.nexus.util.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +16,9 @@ import java.util.UUID;
 
 public class PipeNetwork {
 
+    private final UUID uuid;
     private final List<BlockPos> pipes;
     private List<StoragePoint> storagePoints;
-    private final UUID uuid;
 
     public PipeNetwork(UUID uuid, List<BlockPos> pipes) {
         this.uuid = uuid;
@@ -42,7 +43,7 @@ public class PipeNetwork {
 
     public void addStoragePoint(StoragePoint point) {
         for (StoragePoint point2 : storagePoints) {
-            if (point.matches(point2)) return;
+            if (point.equals(point2)) return;
         }
         storagePoints.add(point);
     }
@@ -61,13 +62,13 @@ public class PipeNetwork {
         return pipes.isEmpty();
     }
 
-    public void removeStoragePoint(BlockPos pos) {
+    public boolean removeStoragePoint(BlockPos pos) {
         for (int i = 0; i < storagePoints.size(); i++) {
             if (storagePoints.get(i).getPos().equals(pos)) {
-                storagePoints.remove(storagePoints.get(i));
-                return;
+                return storagePoints.remove(storagePoints.get(i));
             }
         }
+        return false;
     }
 
     public List<BlockPos> getPipes() {
@@ -78,7 +79,32 @@ public class PipeNetwork {
         return storagePoints;
     }
 
+    public List<StoragePoint> getStorageLocations() {
+        List<StoragePoint> storageLoc = new ArrayList<>();
+        List<BlockPos> positionLoc = new ArrayList<>();
+        for (StoragePoint point : storagePoints) {
+            if (!positionLoc.contains(point.getInventoryPos())) {
+                storageLoc.add(point);
+                positionLoc.add(point.getInventoryPos());
+            }
+        }
+        return storageLoc;
+    }
+
+    public List<BlockPos> getNexusPoints(Level level) {
+        List<BlockPos> nexus = new ArrayList<>();
+        for (BlockPos pos : pipes) if (level.getBlockState(pos).getBlock() instanceof NexusBlock) nexus.add(pos);
+        return nexus;
+    }
+
     public void updateAllPoints(Level level, boolean update) {
+        if (update) {
+            List<StoragePoint> points = new ArrayList<>();
+            for (StoragePoint point : storagePoints)
+                if (!points.contains(point) && level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null)
+                    points.add(point);
+            storagePoints = points;
+        }
         storagePoints.forEach(p -> p.update(level));
         if (update) for (BlockPos pos : pipes) if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
     }

@@ -134,7 +134,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
 
     public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull LevelAccessor world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
         if (state.getValue(BlockStateProperties.WATERLOGGED)) {
-            world.getFluidTicks().schedule(new ScheduledTick<>(Fluids.WATER, current, Fluids.WATER.getTickDelay(world), 0L));   // @todo 1.18 what is this last parameter exactly?
+            world.getFluidTicks().schedule(new ScheduledTick<>(Fluids.WATER, current, Fluids.WATER.getTickDelay(world), 0L));
         }
         return calculateState(world, current, state);
     }
@@ -157,7 +157,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
         if (block instanceof PipeAttachmentBlock) {
             return CABLE;
         } else if (isConnectable(world, connectorPos, facing)) {
-            return OUTPUT; // TODO MAKE INPUT/OUTPUT
+            return OUTPUT;
         } else {
             return ConnectionType.NONE;
         }
@@ -170,7 +170,7 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
         return state.is(Registration.DIRECTIONAL_PIPE_CONNECTIVE) && state.getValue(InterfaceBlock.FACING) == facing;
     }
 
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(BlockStateProperties.WATERLOGGED, NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
@@ -205,20 +205,20 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
-            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE) && !pLevel.getBlockState(pPos.below()).is(Blocks.GREEN_CONCRETE)) {
-                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
-                    if (!PipeNetworks.get((ServerLevel) pLevel).isStoragePoint(be.getUUID(), pos)) pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
-                    else pLevel.setBlock(pos.below(), Blocks.GREEN_CONCRETE.defaultBlockState(), 2);
-                }
-            }
-            else {
-                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
-                    pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
-                }
-            }
-            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel);
-        }
+//        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
+//            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE) && !pLevel.getBlockState(pPos.below()).is(Blocks.GREEN_CONCRETE)) {
+//                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
+//                    if (!PipeNetworks.get((ServerLevel) pLevel).isStoragePoint(be.getUUID(), pos)) pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
+//                    else pLevel.setBlock(pos.below(), Blocks.GREEN_CONCRETE.defaultBlockState(), 2);
+//                }
+//            }
+//            else {
+//                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
+//                    pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
+//                }
+//            }
+//            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel);
+//        }
         return InteractionResult.PASS;
     }
 

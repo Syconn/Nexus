@@ -1,7 +1,7 @@
-// 1.20.4	2024-04-03T21:04:21.2750398	vanilla/Block States: nexus
+// 1.20.4	2024-04-28T20:43:26.6411475	vanilla/Block States: nexus
 69b635520ea23c81c24fa4e4142c38eee91cd78d assets/nexus/blockstates/external_storage.json
 30d6f443cdc6717ad8281e3920e35fe5ac4e889e assets/nexus/blockstates/external_storage_dummy.json
-d0e3420b5bd1f3d026d861ccd2af6ecb8ecdf2a6 assets/nexus/blockstates/interface.json
+c833bac53de20b65911cb05d527b84e1a3087a75 assets/nexus/blockstates/interface.json
 836f9990c71ab6529b6e4fab20d8ec3a4435e252 assets/nexus/blockstates/item_pipe.json
 f284ea1e1ae528f84464787f9069dc1bbbe134f8 assets/nexus/blockstates/nexus.json
 27a14af26bfc0e15e8a8f72edb1af186ffa8adc4 assets/nexus/models/block/external_storage.json
