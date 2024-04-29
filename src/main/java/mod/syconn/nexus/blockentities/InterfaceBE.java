@@ -2,6 +2,7 @@ package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.InterfaceBlock;
+import mod.syconn.nexus.network.Channel;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
@@ -45,16 +46,16 @@ public class InterfaceBE extends BasePipeBE {
     }
 
     public void tickServer() {
-        if (updateScreen && !level.isClientSide()) { // TODO FOUND DUPE BUG WITH FULL INV
-            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY); // TODO CANT INSERT ITEMS IF INVENTORY FULL ON SCREEN BYT NOT STORAGE - IDEA USE FAKE SLOT
-            PipeNetworks network = PipeNetworks.get((ServerLevel) level); // TODO IMPLEMENT NEXUS BLOCK
+        if (updateScreen && !level.isClientSide()) {
+            for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
+            PipeNetworks network = PipeNetworks.get((ServerLevel) level);
             Map<Item, Map<BlockPos, List<ItemStack>>> map = network.getItemsOnNetwork(level, getUUID(), false);
             invSize = map.entrySet().size();
             int startIndex = line * 9;
             int slotDelay = 0;
             int slot = 0;
             for (Map.Entry<Item, Map<BlockPos, List<ItemStack>>> m : map.entrySet()) {
-                if (slot >= items.getSlots()) break;
+                if (slot >= 45) break;
                 else if (slotDelay >= startIndex) {
                     int stackSize = 0;
                     List<BlockPos> locations = new ArrayList<>();
@@ -68,23 +69,27 @@ public class InterfaceBE extends BasePipeBE {
                 }
                 slotDelay++;
             }
-
-            line = 0;
             updateScreen = false;
             markDirty();
         }
 
         if (!level.isClientSide()) {
+            if (line > 0 && Math.ceil(invSize / 9.0) <= 5) {
+                line = 0;
+                updateScreen();
+            }
+
             tick++;
             if (tick >= 100) {
                 level.setBlock(worldPosition, getBlockState().setValue(InterfaceBlock.ACTIVE, !PipeNetworks.get((ServerLevel) level).getNexusBlocks(level, getUUID()).isEmpty()), 2);
                 tick = 0;
             }
+            markDirty();
         }
     }
 
     private UncappedItemHandler createItemHandler() {
-        return new UncappedItemHandler(45) {
+        return new UncappedItemHandler(46) {
             protected void onContentsChanged(int slot) {
                 markDirty();
             }
@@ -142,7 +147,7 @@ public class InterfaceBE extends BasePipeBE {
         return invSize;
     }
 
-    public double getLine() {
+    public int getLine() {
         return line;
     }
 

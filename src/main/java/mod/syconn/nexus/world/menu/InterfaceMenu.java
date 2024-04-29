@@ -3,6 +3,7 @@ package mod.syconn.nexus.world.menu;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.util.ItemStackHelper;
+import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -20,16 +21,13 @@ public class InterfaceMenu extends AbstractContainerMenu {
     private final BlockPos pos;
     private final Level level;
     private IItemHandlerModifiable items;
-    private int invSize;
 
     public InterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         this.level = player.level();
-
         if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
             items = be.getItems();
-            invSize = be.getInvSize();
             int index = 0;
             for (int y = 0; y < 5; y++) {
                 for (int x = 0; x < 9; x++) {
@@ -37,25 +35,13 @@ public class InterfaceMenu extends AbstractContainerMenu {
                     index++;
                 }
             }
-//            addSlot(new SlotItemHandler(items, 45, 9 + 18 * 6, 18 + 18) {
-//                public boolean mayPickup(Player playerIn) {
-//                    return false;
-//                }
-//
-//                public boolean isFake() {
-//                    return true;
-//                }
-//            });
+            addSlot(new HiddenItemHandlerSlot(items, 45, 9 + 18 * 6, 18 + 18));
         }
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
     }
 
     public BlockPos getPos() {
         return pos;
-    }
-
-    public int getInventorySize() {
-        return invSize;
     }
 
     private void layoutPlayerInventorySlots(Container playerInventory, int leftCol, int topRow) {
@@ -87,14 +73,14 @@ public class InterfaceMenu extends AbstractContainerMenu {
         if (slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
-            if (index < 45) {
+            if (index < 46) {
                 itemstack1 = itemstack.getCount() > itemstack.getMaxStackSize() ? itemstack1.copyWithCount(itemstack.getMaxStackSize()) : itemstack1.copy();
                 itemstack = itemstack1.copy();
-                if (!this.moveItemStackTo(itemstack1, 45, this.slots.size(), true)) {
+                if (!this.moveItemStackTo(itemstack1, 46, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
                 items.extractItem(index, 63, false);
-            } else if (!this.moveItemStackTo(itemstack1, 0, 45, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 0, 46, false)) {
                 return ItemStack.EMPTY;
             }
             if (itemstack1.isEmpty()) {
@@ -110,14 +96,12 @@ public class InterfaceMenu extends AbstractContainerMenu {
         boolean flag = false;
         boolean handled = false;
         int i = pStartIndex;
-        if (pReverseDirection) {
-            i = pEndIndex - 1;
-        }
+        if (pReverseDirection) i = pEndIndex - 1;
         if (pStack.isStackable()) {
             while(!pStack.isEmpty() && (pReverseDirection ? i >= pStartIndex : i < pEndIndex)) {
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
-                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 45 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
+                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 46 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
                     ItemStack remainder = ItemStackHelper.canAddItemStack(pStack, (ServerLevel) level, be.getUUID());
                     if (!ItemStack.matches(pStack, remainder)) {
                         items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));
@@ -128,38 +112,25 @@ public class InterfaceMenu extends AbstractContainerMenu {
                     handled = true;
                     break;
                 }
-                if (pReverseDirection) {
-                    --i;
-                } else {
-                    ++i;
-                }
+                if (pReverseDirection) --i;
+                else ++i;
             }
         }
         if (!pStack.isEmpty() && !handled) {
-            if (pReverseDirection) {
-                i = pEndIndex - 1;
-            } else {
-                i = pStartIndex;
-            }
+            if (pReverseDirection) i = pEndIndex - 1;
+            else i = pStartIndex;
             while(pReverseDirection ? i >= pStartIndex : i < pEndIndex) {
                 Slot slot1 = this.slots.get(i);
                 ItemStack itemstack1 = slot1.getItem();
                 if (itemstack1.isEmpty() && slot1.mayPlace(pStack)) {
-                    if (pStack.getCount() > slot1.getMaxStackSize()) {
-                        slot1.setByPlayer(pStack.split(slot1.getMaxStackSize()));
-                    } else {
-                        slot1.setByPlayer(pStack.split(pStack.getCount()));
-                    }
-
+                    if (pStack.getCount() > slot1.getMaxStackSize()) slot1.setByPlayer(pStack.split(slot1.getMaxStackSize()));
+                    else slot1.setByPlayer(pStack.split(pStack.getCount()));
                     slot1.setChanged();
                     flag = true;
                     break;
                 }
-                if (pReverseDirection) {
-                    --i;
-                } else {
-                    ++i;
-                }
+                if (pReverseDirection) --i;
+                else ++i;
             }
         }
         return flag;
