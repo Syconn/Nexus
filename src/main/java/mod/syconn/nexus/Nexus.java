@@ -45,6 +45,7 @@ public class Nexus {
         var pack = event.getGenerator().getVanillaPack(true);
         pack.addProvider(LangGen::new);
         pack.addProvider(LootTableGen::new);
+        pack.addProvider(pOutput -> new RecipeGen(pOutput, event.getLookupProvider()));
         pack.addProvider(pOutput -> new BlockStateGen(pOutput, fileHelper));
         pack.addProvider(pOutput -> new ItemModelGen(pOutput, fileHelper));
         pack.addProvider(pOutput -> new BlockTagsGen(pOutput, event.getLookupProvider(), fileHelper));
