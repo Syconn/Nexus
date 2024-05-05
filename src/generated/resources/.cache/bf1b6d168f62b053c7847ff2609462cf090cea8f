@@ -1,8 +1,8 @@
-// 1.20.4	2024-04-28T20:21:46.4044116	vanilla/Tags for minecraft:block mod id nexus
-774ca8785c433e0e0f0da654f0317f1986b34938 data/minecraft/tags/blocks/mineable/pickaxe.json
-4e4a412d9d550ec38be44d5e1fb26f381addd21d data/minecraft/tags/blocks/needs_iron_tool.json
+// 1.20.4	2024-05-04T13:59:07.0007972	vanilla/Tags for minecraft:block mod id nexus
+ae81706eaf5bb486b89f43911537606b8fc0584a data/minecraft/tags/blocks/mineable/pickaxe.json
+990a8b9719f8da50fc5f6723397cbb105600cda2 data/minecraft/tags/blocks/needs_iron_tool.json
 26d67e23885cdc78fcb63d74d502040cf279e4d7 data/minecraft/tags/blocks/needs_stone_tool.json
-d75fd1755db624d9ecccc9027b97795459caa84e data/nexus/tags/blocks/directional_pipe_connective.json
+18c1b31bf852eb5b9999c5e027a3e745038b9fee data/nexus/tags/blocks/directional_pipe_connective.json
 b59ca50d39e89a1e98a738997273904a03002347 data/nexus/tags/blocks/opp_dir_con.json
 26d67e23885cdc78fcb63d74d502040cf279e4d7 data/nexus/tags/blocks/pipes.json
 07115815c1426f0e24c82e6a32594325f1543b1b data/nexus/tags/blocks/pipe_connective.json

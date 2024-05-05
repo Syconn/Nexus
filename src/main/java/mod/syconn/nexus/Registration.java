@@ -1,10 +1,8 @@
 package mod.syconn.nexus;
 
-import mod.syconn.nexus.blockentities.ExternalStorageBE;
-import mod.syconn.nexus.blockentities.InterfaceBE;
-import mod.syconn.nexus.blockentities.ItemPipeBE;
-import mod.syconn.nexus.blockentities.NexusBE;
+import mod.syconn.nexus.blockentities.*;
 import mod.syconn.nexus.blocks.*;
+import mod.syconn.nexus.world.menu.CraftingInterfaceMenu;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -42,17 +40,20 @@ public class Registration {
     public static final DeferredBlock<Block> NEXUS = BLOCKS.register("nexus", NexusBlock::new);
     public static final DeferredBlock<Block> ITEM_PIPE = BLOCKS.register("item_pipe", ItemPipe::new);
     public static final DeferredBlock<Block> INTERFACE = BLOCKS.register("interface", InterfaceBlock::new);
+    public static final DeferredBlock<Block> CRAFTING_INTERFACE = BLOCKS.register("crafting_interface", CraftingInterface::new);
     public static final DeferredBlock<Block> EXTERNAL_STORAGE = BLOCKS.register("external_storage", ExternalStorage::new);
     public static final DeferredBlock<Block> EXTERNAL_STORAGE_DUMMY = BLOCKS.register("external_storage_dummy", () -> new DirectionalBlock(BlockBehaviour.Properties.of()));
 
-    public static final DeferredItem<BlockItem> NEXUS_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("nexus", NEXUS);
+    public static final DeferredItem<BlockItem> NEXUS_ITEM = ITEMS.registerSimpleBlockItem("nexus", NEXUS);
     public static final DeferredItem<BlockItem> ITEM_PIPE_ITEM = ITEMS.registerSimpleBlockItem("item_pipe", ITEM_PIPE);
     public static final DeferredItem<BlockItem> INTERFACE_ITEM = ITEMS.registerSimpleBlockItem("interface", INTERFACE);
+    public static final DeferredItem<BlockItem> CRAFTING_INTERFACE_ITEM = ITEMS.registerSimpleBlockItem("crafting_interface", CRAFTING_INTERFACE);
     public static final DeferredItem<BlockItem> EXTERNAL_STORAGE_ITEM = ITEMS.registerSimpleBlockItem("external_storage", EXTERNAL_STORAGE);
 
     public static final Supplier<BlockEntityType<ItemPipeBE>> ITEM_PIPE_BE = BLOCK_ENTITIES.register("item_pipe", () -> BlockEntityType.Builder.of(ItemPipeBE::new, ITEM_PIPE.get()).build(null));
     public static final Supplier<BlockEntityType<ExternalStorageBE>> EXTERNAL_STORAGE_BE = BLOCK_ENTITIES.register("external_storage", () -> BlockEntityType.Builder.of(ExternalStorageBE::new, EXTERNAL_STORAGE.get()).build(null));
     public static final Supplier<BlockEntityType<InterfaceBE>> INTERFACE_BE = BLOCK_ENTITIES.register("interface", () -> BlockEntityType.Builder.of(InterfaceBE::new, INTERFACE.get()).build(null));
+    public static final Supplier<BlockEntityType<CraftingInterfaceBE>> CRAFTING_INTERFACE_BE = BLOCK_ENTITIES.register("crafting_interface", () -> BlockEntityType.Builder.of(CraftingInterfaceBE::new, CRAFTING_INTERFACE.get()).build(null));
     public static final Supplier<BlockEntityType<NexusBE>> NEXUS_BE = BLOCK_ENTITIES.register("nexus", () -> BlockEntityType.Builder.of(NexusBE::new, NEXUS.get()).build(null));
 
     public static final TagKey<Block> PIPES = BlockTags.create(new ResourceLocation(MODID, "pipes"));
@@ -64,6 +65,7 @@ public class Registration {
             .title(Component.translatable("itemGroup." + MODID)).icon(() -> Registration.NEXUS.get().asItem().getDefaultInstance()).build());
 
     public static final Supplier<MenuType<InterfaceMenu>> INTERFACE_MENU = MENUS.register("interface", () -> IMenuTypeExtension.create((windowId, inv, data) -> new InterfaceMenu(windowId, inv.player, data.readBlockPos())));
+    public static final Supplier<MenuType<CraftingInterfaceMenu>> CRAFTING_INTERFACE_MENU = MENUS.register("crafting_interface", () -> IMenuTypeExtension.create((windowId, inv, data) -> new CraftingInterfaceMenu(windowId, inv.player, data.readBlockPos())));
 
     public static void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == NEXUS_TAB.getKey()) {

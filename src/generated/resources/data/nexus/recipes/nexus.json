@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "b": {
+      "item": "minecraft:redstone_block"
+    },
+    "c": {
+      "item": "minecraft:end_crystal"
+    },
+    "l": {
+      "item": "minecraft:light_blue_concrete"
+    },
+    "p": {
+      "item": "minecraft:purple_concrete"
+    },
+    "r": {
+      "item": "minecraft:red_concrete"
+    },
+    "y": {
+      "item": "minecraft:yellow_concrete"
+    }
+  },
+  "pattern": [
+    "byb",
+    "pcl",
+    "brb"
+  ],
+  "result": {
+    "item": "nexus:nexus"
+  }
+}

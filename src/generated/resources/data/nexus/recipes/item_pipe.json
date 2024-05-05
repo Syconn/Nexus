@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "tag": "forge:glass"
+    },
+    "h": {
+      "item": "minecraft:hopper"
+    }
+  },
+  "pattern": [
+    " g ",
+    "ghg",
+    " g "
+  ],
+  "result": {
+    "item": "nexus:item_pipe"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "item": "minecraft:redstone_block"
+    },
+    "d": {
+      "item": "minecraft:redstone"
+    },
+    "g": {
+      "item": "minecraft:redstone_lamp"
+    }
+  },
+  "pattern": [
+    "dbd",
+    "dgd",
+    "dbd"
+  ],
+  "result": {
+    "item": "nexus:interface"
+  }
+}

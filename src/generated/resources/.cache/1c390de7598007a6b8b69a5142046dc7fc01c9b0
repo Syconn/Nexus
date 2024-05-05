@@ -1,4 +1,5 @@
-// 1.20.4	2024-04-28T20:43:26.6411475	vanilla/Block States: nexus
+// 1.20.4	2024-05-04T13:34:49.8137769	vanilla/Block States: nexus
+b10d78e030b53d48977b6be474a8b81dab462eda assets/nexus/blockstates/crafting_interface.json
 69b635520ea23c81c24fa4e4142c38eee91cd78d assets/nexus/blockstates/external_storage.json
 30d6f443cdc6717ad8281e3920e35fe5ac4e889e assets/nexus/blockstates/external_storage_dummy.json
 c833bac53de20b65911cb05d527b84e1a3087a75 assets/nexus/blockstates/interface.json
@@ -7,6 +8,7 @@ f284ea1e1ae528f84464787f9069dc1bbbe134f8 assets/nexus/blockstates/nexus.json
 27a14af26bfc0e15e8a8f72edb1af186ffa8adc4 assets/nexus/models/block/external_storage.json
 27a14af26bfc0e15e8a8f72edb1af186ffa8adc4 assets/nexus/models/block/item_pipe.json
 a22ff5bf1ee222fad8a500acbc61c0af73bf3c3d assets/nexus/models/block/nexus.json
+5f90c5e6ce5e92e20088227303abc9a238d96e36 assets/nexus/models/item/crafting_interface.json
 92be891142ff7ef3e203167188a44785cca1a630 assets/nexus/models/item/external_storage.json
 dc7d8e0f7b1f872a187677f5519b9e3ed3620b02 assets/nexus/models/item/interface.json
 a1bfddd51fb57f39d2eb2908083a8dfda50e7415 assets/nexus/models/item/item_pipe.json

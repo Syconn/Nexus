@@ -1,6 +1,7 @@
 package mod.syconn.nexus.network.packets;
 
 import mod.syconn.nexus.Nexus;
+import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -30,6 +31,7 @@ public record RefreshInterface(BlockPos pos) implements CustomPacketPayload {
         ctx.workHandler().submitAsync(() -> {
             ctx.player().ifPresent(player -> {
                 if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
+                if (player.level().getBlockEntity(pos) instanceof CraftingInterfaceBE be) be.updateScreen();
             });
         });
     }

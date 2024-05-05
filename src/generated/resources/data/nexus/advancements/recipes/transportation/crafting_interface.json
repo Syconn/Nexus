@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "nexus:crafting_interface"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "interface": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "nexus:interface"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "interface"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "nexus:crafting_interface"
+    ]
+  }
+}

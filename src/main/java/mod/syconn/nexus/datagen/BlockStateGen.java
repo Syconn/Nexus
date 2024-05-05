@@ -34,10 +34,18 @@ public class BlockStateGen extends BlockStateProvider {
 
     private void registerDynamicStates() {
         simpleBlockItem(Registration.INTERFACE.get(), generated(Registration.INTERFACE.get()));
+        simpleBlockItem(Registration.CRAFTING_INTERFACE.get(), generated(Registration.CRAFTING_INTERFACE.get()));
         getVariantBuilder(Registration.INTERFACE.get()).forAllStatesExcept(state -> {
             Direction direction = state.getValue(InterfaceBlock.FACING);
             boolean active = state.getValue(InterfaceBlock.ACTIVE);
             return ConfiguredModel.builder().modelFile(generated(Registration.INTERFACE.get(), !active ? "_off" : ""))
+                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
+                    .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
+        }, PipeAttachmentBlock.DOWN, PipeAttachmentBlock.EAST, PipeAttachmentBlock.WEST, PipeAttachmentBlock.NORTH, PipeAttachmentBlock.UP, PipeAttachmentBlock.SOUTH);
+        getVariantBuilder(Registration.CRAFTING_INTERFACE.get()).forAllStatesExcept(state -> {
+            Direction direction = state.getValue(InterfaceBlock.FACING);
+            boolean active = state.getValue(InterfaceBlock.ACTIVE);
+            return ConfiguredModel.builder().modelFile(generated(Registration.CRAFTING_INTERFACE.get(), !active ? "_off" : ""))
                     .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
                     .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
         }, PipeAttachmentBlock.DOWN, PipeAttachmentBlock.EAST, PipeAttachmentBlock.WEST, PipeAttachmentBlock.NORTH, PipeAttachmentBlock.UP, PipeAttachmentBlock.SOUTH);

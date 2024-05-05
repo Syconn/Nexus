@@ -1,5 +1,6 @@
 {
   "values": [
+    "nexus:crafting_interface",
     "nexus:interface",
     "nexus:external_storage"
   ]

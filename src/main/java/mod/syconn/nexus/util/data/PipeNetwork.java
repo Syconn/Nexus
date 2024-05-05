@@ -1,5 +1,6 @@
 package mod.syconn.nexus.util.data;
 
+import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.blocks.NexusBlock;
 import mod.syconn.nexus.util.NBTHelper;
@@ -106,7 +107,10 @@ public class PipeNetwork {
             storagePoints = points;
         }
         storagePoints.forEach(p -> p.update(level));
-        if (update) for (BlockPos pos : pipes) if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
+        if (update) for (BlockPos pos : pipes) {
+            if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
+            if (level.getBlockEntity(pos) instanceof CraftingInterfaceBE be) be.updateScreen();
+        }
     }
 
     public CompoundTag save() {

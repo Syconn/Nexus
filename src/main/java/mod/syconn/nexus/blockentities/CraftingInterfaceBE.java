@@ -2,7 +2,6 @@ package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.InterfaceBlock;
-import mod.syconn.nexus.network.Channel;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
@@ -16,7 +15,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
@@ -31,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InterfaceBE extends BasePipeBE {
+public class CraftingInterfaceBE extends BasePipeBE {
 
     private static final String ITEMS_TAG = "Inventory";
     private final UncappedItemHandler items = createItemHandler();
@@ -42,11 +40,11 @@ public class InterfaceBE extends BasePipeBE {
     private boolean updateScreen = false;
     private int tick = 0;
 
-    public InterfaceBE(BlockPos pos, BlockState state) {
-        super(Registration.INTERFACE_BE.get(), pos, state);
+    public CraftingInterfaceBE(BlockPos pos, BlockState state) {
+        super(Registration.CRAFTING_INTERFACE_BE.get(), pos, state);
     }
 
-    public void tickServer() {
+    public void tickServer() { // TODO WORKS BUT WONT REFRESH
         if (updateScreen && !level.isClientSide()) {
             for (int i = 0; i < items.getSlots(); i++) items.setStackInSlot(i, ItemStack.EMPTY);
             PipeNetworks network = PipeNetworks.get((ServerLevel) level);

@@ -1,15 +1,11 @@
 package mod.syconn.nexus.blocks;
 
-import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.InterfaceBE;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
-import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -33,9 +29,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
 
@@ -65,7 +59,7 @@ public class InterfaceBlock extends PipeAttachmentBlock implements EntityBlock {
                 ((InterfaceBE) be).updateScreen();
                 MenuProvider containerProvider = new MenuProvider() {
                     public Component getDisplayName() {
-                        return Component.literal("Nexus Screen");
+                        return Component.literal("Interface Screen");
                     }
                     public AbstractContainerMenu createMenu(int windowId, Inventory playerInventory, Player playerEntity) { return new InterfaceMenu(windowId, playerEntity, pPos); }
                 };

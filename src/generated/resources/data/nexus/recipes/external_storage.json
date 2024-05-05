@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "item": "minecraft:black_concrete"
+    },
+    "h": {
+      "item": "minecraft:hopper"
+    },
+    "p": {
+      "item": "nexus:item_pipe"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "br ",
+    "hpr",
+    "br "
+  ],
+  "result": {
+    "item": "nexus:external_storage"
+  }
+}

@@ -1,33 +1,30 @@
 package mod.syconn.nexus.world.menu;
 
 import mod.syconn.nexus.Registration;
-import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-public class InterfaceMenu extends AbstractContainerMenu {
+public class CraftingInterfaceMenu extends AbstractContainerMenu {
 
     protected final BlockPos pos;
     protected final Level level;
     protected IItemHandlerModifiable items;
 
-    public InterfaceMenu(MenuType<?> pMenuType, int windowId, Player player, BlockPos pos) {
-        super(pMenuType, windowId);
+    public CraftingInterfaceMenu(int windowId, Player player, BlockPos pos) {
+        super(Registration.CRAFTING_INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         this.level = player.level();
-        if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
+        if (player.level().getBlockEntity(pos) instanceof CraftingInterfaceBE be) {
             items = be.getItems();
             int index = 0;
             for (int y = 0; y < 5; y++) {
@@ -39,10 +36,6 @@ public class InterfaceMenu extends AbstractContainerMenu {
             addSlot(new HiddenItemHandlerSlot(items, 45, 9 + 18 * 6, 18 + 18));
         }
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
-    }
-
-    public InterfaceMenu(int windowId, Player player, BlockPos pos) {
-        this(Registration.INTERFACE_MENU.get(), windowId, player, pos);
     }
 
     public BlockPos getPos() {
@@ -106,7 +99,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
             while(!pStack.isEmpty() && (pReverseDirection ? i >= pStartIndex : i < pEndIndex)) {
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
-                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 46 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
+                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 46 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof CraftingInterfaceBE be) {
                     ItemStack remainder = ItemStackHelper.canAddItemStack(pStack, (ServerLevel) level, be.getUUID());
                     if (!ItemStack.matches(pStack, remainder)) {
                         items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));
@@ -142,6 +135,6 @@ public class InterfaceMenu extends AbstractContainerMenu {
     }
 
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, Registration.INTERFACE.get());
+        return stillValid(ContainerLevelAccess.create(player.level(), pos), player, Registration.CRAFTING_INTERFACE.get());
     }
 }

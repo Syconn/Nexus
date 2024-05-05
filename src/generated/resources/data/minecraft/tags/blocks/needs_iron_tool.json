@@ -1,6 +1,7 @@
 {
   "values": [
     "nexus:interface",
-    "nexus:nexus"
+    "nexus:nexus",
+    "nexus:crafting_interface"
   ]
 }
