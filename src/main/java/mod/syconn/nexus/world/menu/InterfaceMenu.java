@@ -1,7 +1,7 @@
 package mod.syconn.nexus.world.menu;
 
 import mod.syconn.nexus.Registration;
-import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
 import net.minecraft.core.BlockPos;
@@ -27,7 +27,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
         super(pMenuType, windowId);
         this.pos = pos;
         this.level = player.level();
-        if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
+        if (player.level().getBlockEntity(pos) instanceof AbstractInterfaceBE be) {
             items = be.getItems();
             int index = 0;
             for (int y = 0; y < 5; y++) {
@@ -106,7 +106,7 @@ public class InterfaceMenu extends AbstractContainerMenu {
             while(!pStack.isEmpty() && (pReverseDirection ? i >= pStartIndex : i < pEndIndex)) {
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
-                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 46 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof InterfaceBE be) {
+                if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 46 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof AbstractInterfaceBE be) {
                     ItemStack remainder = ItemStackHelper.canAddItemStack(pStack, (ServerLevel) level, be.getUUID());
                     if (!ItemStack.matches(pStack, remainder)) {
                         items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));

@@ -8,6 +8,7 @@ import mod.syconn.nexus.network.packets.RefreshInterface;
 import mod.syconn.nexus.network.packets.ScrollInterface;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
 import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -59,8 +61,45 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
             ItemStack itemstack = pSlot.getItem();
             String amount = "";
             double value = itemstack.getCount();
+            boolean flag = false;
             boolean flag1 = pSlot == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
-            if (pSlot == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !itemstack.isEmpty()) itemstack = itemstack.copyWithCount(itemstack.getCount() / 2);
+            ItemStack itemstack1 = this.menu.getCarried();
+            if (pSlot == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !itemstack.isEmpty()) {
+                itemstack = itemstack.copyWithCount(itemstack.getCount() / 2);
+            } else if (this.isQuickCrafting && this.quickCraftSlots.contains(pSlot) && !itemstack1.isEmpty()) {
+                if (this.quickCraftSlots.size() == 1) {
+                    return;
+                }
+
+                if (AbstractContainerMenu.canItemQuickReplace(pSlot, itemstack1, true) && this.menu.canDragTo(pSlot)) {
+                    flag = true;
+                    int k = Math.min(itemstack1.getMaxStackSize(), pSlot.getMaxStackSize(itemstack1));
+                    int l = pSlot.getItem().isEmpty() ? 0 : pSlot.getItem().getCount();
+                    int i1 = AbstractContainerMenu.getQuickCraftPlaceCount(this.quickCraftSlots, this.quickCraftingType, itemstack1) + l;
+                    if (i1 > k) {
+                        i1 = k;
+                        amount = ChatFormatting.YELLOW.toString() + k;
+                    }
+
+                    itemstack = itemstack1.copyWithCount(i1);
+                } else {
+                    this.quickCraftSlots.remove(pSlot);
+                    this.recalculateQuickCraftRemaining();
+                }
+            }
+            if (amount.equals("")) {
+                if (value > 1) {
+                    String[] arr = {"", "k", "m", "b", "t"};
+                    int index = 0;
+                    while ((value / 1000) >= 1) {
+                        value = value / 1000;
+                        index++;
+                    }
+                    if (index > 4) index = 0;
+                    DecimalFormat decimalFormat = new DecimalFormat("#");
+                    amount = String.format("%s%s", decimalFormat.format(value), arr[index]);
+                } else amount = null;
+            }
             pGuiGraphics.pose().pushPose();
             pGuiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
             if (itemstack.isEmpty() && pSlot.isActive()) {
@@ -71,21 +110,18 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
                     flag1 = true;
                 }
             }
-            if (value > 1) {
-                String[] arr = {"", "k", "m", "b", "t"};
-                int index = 0;
-                while ((value / 1000) >= 1) {
-                    value = value / 1000;
-                    index++;
-                }
-                if (index > 4) index = 0;
-                DecimalFormat decimalFormat = new DecimalFormat("#");
-                amount = String.format("%s%s", decimalFormat.format(value), arr[index]);
-            } else amount = null;
             if (!flag1) {
+                if (flag) {
+                    pGuiGraphics.fill(i, j, i + 16, j + 16, -2130706433);
+                }
+
                 int j1 = pSlot.x + pSlot.y * this.imageWidth;
-                if (pSlot.isFake()) pGuiGraphics.renderFakeItem(itemstack, i, j, j1);
-                else pGuiGraphics.renderItem(itemstack, i, j, j1);
+                if (pSlot.isFake()) {
+                    pGuiGraphics.renderFakeItem(itemstack, i, j, j1);
+                } else {
+                    pGuiGraphics.renderItem(itemstack, i, j, j1);
+                }
+
                 pGuiGraphics.renderItemDecorations(this.font, itemstack, i, j, amount);
             }
             pGuiGraphics.pose().popPose();

@@ -1,7 +1,6 @@
 package mod.syconn.nexus.util.data;
 
-import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
-import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
 import mod.syconn.nexus.blocks.NexusBlock;
 import mod.syconn.nexus.util.NBTHelper;
 import net.minecraft.core.BlockPos;
@@ -108,8 +107,7 @@ public class PipeNetwork {
         }
         storagePoints.forEach(p -> p.update(level));
         if (update) for (BlockPos pos : pipes) {
-            if (level.getBlockEntity(pos) instanceof InterfaceBE be) be.updateScreen();
-            if (level.getBlockEntity(pos) instanceof CraftingInterfaceBE be) be.updateScreen();
+            if (level.getBlockEntity(pos) instanceof AbstractInterfaceBE be) be.updateScreen();
         }
     }
 

@@ -19,6 +19,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
     protected final BlockPos pos;
     protected final Level level;
     protected IItemHandlerModifiable items;
+    private final CraftingContainer craftSlots = new TransientCraftingContainer(this, 3, 3);
 
     public CraftingInterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.CRAFTING_INTERFACE_MENU.get(), windowId);
@@ -34,6 +35,11 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 }
             }
             addSlot(new HiddenItemHandlerSlot(items, 45, 9 + 18 * 6, 18 + 18));
+        }
+        for(int i = 0; i < 3; ++i) {
+            for(int j = 0; j < 3; ++j) {
+                this.addSlot(new Slot(this.craftSlots, j + i * 3, 196 + j * 18, 54 + i * 18));
+            }
         }
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
     }

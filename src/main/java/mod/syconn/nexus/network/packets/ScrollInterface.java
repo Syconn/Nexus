@@ -1,8 +1,7 @@
 package mod.syconn.nexus.network.packets;
 
 import mod.syconn.nexus.Nexus;
-import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
-import mod.syconn.nexus.blockentities.InterfaceBE;
+import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -29,10 +28,7 @@ public record ScrollInterface(BlockPos pos, float scrollOffset) implements Custo
     public void handle(PlayPayloadContext ctx) {
         ctx.workHandler().submitAsync(() -> {
             ctx.player().ifPresent(player -> {
-                if (player.level().getBlockEntity(pos) instanceof InterfaceBE be) {
-                    int line = (int) Math.ceil(be.getInvSize() / 9.0) - 5;
-                    be.setLine((int) (line * scrollOffset));
-                } else if (player.level().getBlockEntity(pos) instanceof CraftingInterfaceBE be) {
+                if (player.level().getBlockEntity(pos) instanceof AbstractInterfaceBE be) {
                     int line = (int) Math.ceil(be.getInvSize() / 9.0) - 5;
                     be.setLine((int) (line * scrollOffset));
                 }
