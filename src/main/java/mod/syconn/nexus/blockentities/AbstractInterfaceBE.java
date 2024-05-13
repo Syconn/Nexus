@@ -87,7 +87,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
         }
     }
 
-    protected UncappedItemHandler createItemHandler() {
+    protected UncappedItemHandler createItemHandler() { // TODO ADDING LESS THAN STACK TO LESS THAN STACK BROKEN
         return new UncappedItemHandler(46) {
             protected void onContentsChanged(int slot) {
                 markDirty();

@@ -1,32 +1,48 @@
 package mod.syconn.nexus.world.menu;
 
 import mod.syconn.nexus.Registration;
+import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
 import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
 import mod.syconn.nexus.util.ItemStackHelper;
+import mod.syconn.nexus.util.data.PipeNetwork;
+import mod.syconn.nexus.util.data.StoragePoint;
 import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.CrafterBlock;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class CraftingInterfaceMenu extends AbstractContainerMenu {
 
     protected final BlockPos pos;
     protected final Level level;
-    protected IItemHandlerModifiable items;
+    private final Player player;
     private final CraftingContainer craftSlots = new TransientCraftingContainer(this, 3, 3);
+    private final ResultContainer resultSlots = new ResultContainer();
+    protected IItemHandlerModifiable items;
+    private AbstractInterfaceBE be;
 
     public CraftingInterfaceMenu(int windowId, Player player, BlockPos pos) {
         super(Registration.CRAFTING_INTERFACE_MENU.get(), windowId);
         this.pos = pos;
         this.level = player.level();
+        this.player = player;
         if (player.level().getBlockEntity(pos) instanceof CraftingInterfaceBE be) {
-            items = be.getItems();
+            this.be = be;
+            this.items = be.getItems();
             int index = 0;
             for (int y = 0; y < 5; y++) {
                 for (int x = 0; x < 9; x++) {
@@ -41,7 +57,22 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 this.addSlot(new Slot(this.craftSlots, j + i * 3, 196 + j * 18, 54 + i * 18));
             }
         }
+        this.addSlot(new ResultSlot(player, this.craftSlots, this.resultSlots, 0, 214, 154));
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
+    }
+
+    public void slotsChanged(Container pContainer) {
+        super.slotsChanged(pContainer);
+        if (!level.isClientSide) {
+            ServerPlayer serverplayer = (ServerPlayer)player;
+            ItemStack itemstack = ItemStack.EMPTY;
+            itemstack = CrafterBlock.getPotentialResults(level, this.craftSlots)
+                    .map(p_307367_ -> p_307367_.assemble(this.craftSlots, level.registryAccess()))
+                    .orElse(ItemStack.EMPTY);
+            resultSlots.setItem(0, itemstack);
+            setRemoteSlot(0, itemstack);
+            serverplayer.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, itemstack));
+        }
     }
 
     public BlockPos getPos() {
@@ -142,5 +173,34 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
 
     public boolean stillValid(Player player) {
         return stillValid(ContainerLevelAccess.create(player.level(), pos), player, Registration.CRAFTING_INTERFACE.get());
+    }
+
+    public void removed(Player pPlayer) {
+        super.removed(pPlayer);
+        clearContainer(pPlayer, craftSlots);
+    }
+
+    protected void clearContainer(Player pPlayer, Container pContainer) {
+        if (!pPlayer.isAlive() || pPlayer instanceof ServerPlayer && ((ServerPlayer) pPlayer).hasDisconnected()) {
+            for (int j = 0; j < pContainer.getContainerSize(); ++j) {
+                pPlayer.drop(pContainer.removeItemNoUpdate(j), false);
+            }
+        } else if (level != null && !level.isClientSide()) {
+            for (int i = 0; i < pContainer.getContainerSize(); ++i) {
+                PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(be.getUUID());
+                ItemStack stack = pContainer.removeItemNoUpdate(i);
+                for (StoragePoint point : network.getStoragePoints()) {
+                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                    ItemStack stack2 = ItemHandlerHelper.insertItemStacked(handler, stack, false);
+                    if (stack2.isEmpty()) break;
+                }
+            }
+            for (int i = 0; i < pContainer.getContainerSize(); ++i) {
+                Inventory inventory = pPlayer.getInventory();
+                if (inventory.player instanceof ServerPlayer) {
+                    inventory.placeItemBackInInventory(pContainer.removeItemNoUpdate(i));
+                }
+            }
+        }
     }
 }
