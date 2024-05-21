@@ -31,10 +31,6 @@ public class StoragePoint {
         update(level);
     }
 
-    public boolean equals(Object obj) {
-        return obj instanceof StoragePoint point && inventoryPos.equals(point.inventoryPos) && pos.equals(point.pos);
-    }
-
     public StoragePoint(CompoundTag tag) {
         pos = NbtUtils.readBlockPos(tag.getCompound("pos"));
         inventoryPos = NbtUtils.readBlockPos(tag.getCompound("inventorypos"));
@@ -78,6 +74,10 @@ public class StoragePoint {
         }
         tag.put("fluids", fluids);
         return tag;
+    }
+
+    public boolean equals(Object obj) {
+        return obj instanceof StoragePoint point && inventoryPos.equals(point.inventoryPos) && pos.equals(point.pos);
     }
 
     public BlockPos getInventoryPos() {

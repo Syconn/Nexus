@@ -19,6 +19,8 @@ public class LangGen extends LanguageProvider {
         this.addBlock(Registration.INTERFACE, "Interface");
         this.addBlock(Registration.CRAFTING_INTERFACE, "Crafting Interface");
         this.addBlock(Registration.EXTERNAL_STORAGE, "External Storage");
+        this.addBlock(Registration.DRIVE, "Drive Block");
+        this.addItem(Registration.STORAGE_DRIVE, "Storage Drive");
         this.add("itemGroup." + MODID, "Nexus");
     }
 }

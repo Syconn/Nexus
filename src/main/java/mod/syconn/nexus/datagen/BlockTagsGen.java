@@ -17,12 +17,12 @@ public class BlockTagsGen extends BlockTagsProvider {
     }
 
     protected void addTags(HolderLookup.Provider pProvider) {
-        this.tag(BlockTags.NEEDS_IRON_TOOL).add(Registration.INTERFACE.get()).add(Registration.NEXUS.get()).add(Registration.CRAFTING_INTERFACE.get());
+        this.tag(BlockTags.NEEDS_IRON_TOOL).add(Registration.INTERFACE.get()).add(Registration.NEXUS.get()).add(Registration.CRAFTING_INTERFACE.get()).add(Registration.DRIVE.get());
         this.tag(BlockTags.NEEDS_STONE_TOOL).add(Registration.ITEM_PIPE.get()).add(Registration.EXTERNAL_STORAGE.get());
 
         this.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(Registration.CRAFTING_INTERFACE.get()).add(Registration.INTERFACE.get(), Registration.EXTERNAL_STORAGE.get(), Registration.NEXUS.get(), Registration.ITEM_PIPE.get());
 
-        this.tag(Registration.PIPE_CONNECTIVE).add(Registration.NEXUS.get());
+        this.tag(Registration.PIPE_CONNECTIVE).add(Registration.NEXUS.get()).add(Registration.DRIVE.get());
         this.tag(Registration.DIRECTIONAL_PIPE_CONNECTIVE).add(Registration.CRAFTING_INTERFACE.get()).add(Registration.INTERFACE.get(), Registration.EXTERNAL_STORAGE.get());
         this.tag(Registration.OPPOSITE_DIRECTIONAL_PIPE_CONNECTIVE).add(Registration.EXTERNAL_STORAGE.get());
         this.tag(Registration.PIPES).add(Registration.ITEM_PIPE.get(), Registration.EXTERNAL_STORAGE.get());

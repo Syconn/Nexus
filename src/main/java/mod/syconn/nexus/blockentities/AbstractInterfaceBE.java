@@ -163,7 +163,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
         registry.forEach(((integer, pos) -> {
             CompoundTag nbt = new CompoundTag();
             nbt.putInt("int", integer);
-            nbt.put("positions", NBTHelper.writePosses(pos));
+            nbt.put("positions", NBTHelper.savePositions(pos));
             registryTag.add(nbt);
         }));
         tag.put("registry", registryTag);
@@ -179,7 +179,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
         }
         tag.getList("registry", Tag.TAG_COMPOUND).forEach(tag2 -> {
             CompoundTag nbt = (CompoundTag) tag2;
-            registry.put(nbt.getInt("int"), NBTHelper.readPosses(nbt.getCompound("positions")));
+            registry.put(nbt.getInt("int"), NBTHelper.loadPositions(nbt.getCompound("positions")));
         });
         updateScreen = tag.getBoolean("update");
         line = tag.getInt("line");

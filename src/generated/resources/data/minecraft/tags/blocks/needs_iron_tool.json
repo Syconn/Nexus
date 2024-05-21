@@ -2,6 +2,7 @@
   "values": [
     "nexus:interface",
     "nexus:nexus",
-    "nexus:crafting_interface"
+    "nexus:crafting_interface",
+    "nexus:drive"
   ]
 }

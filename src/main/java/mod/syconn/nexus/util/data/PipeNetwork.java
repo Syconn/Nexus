@@ -113,7 +113,7 @@ public class PipeNetwork {
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
-        tag.put("pipes", NBTHelper.writePosses(pipes));
+        tag.put("pipes", NBTHelper.savePositions(pipes));
         tag.putUUID("uuid", uuid);
         ListTag listTag = new ListTag();
         for (StoragePoint point : storagePoints) {
@@ -126,7 +126,7 @@ public class PipeNetwork {
     }
 
     public static PipeNetwork load(CompoundTag tag) {
-        PipeNetwork network = new PipeNetwork(tag.getUUID("uuid"), NBTHelper.readPosses(tag.getCompound("pipes")));
+        PipeNetwork network = new PipeNetwork(tag.getUUID("uuid"), NBTHelper.loadPositions(tag.getCompound("pipes")));
         List<StoragePoint> points = new ArrayList<>();
         tag.getList("points", Tag.TAG_COMPOUND).forEach(tag2 -> {
             CompoundTag nbt = (CompoundTag) tag2;

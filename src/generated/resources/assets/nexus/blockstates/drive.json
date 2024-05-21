@@ -1,0 +1,46 @@
+{
+  "variants": {
+    "facing=down,waterlogged=false": {
+      "model": "nexus:block/drive"
+    },
+    "facing=down,waterlogged=true": {
+      "model": "nexus:block/drive"
+    },
+    "facing=east,waterlogged=false": {
+      "model": "nexus:block/drive",
+      "y": 270
+    },
+    "facing=east,waterlogged=true": {
+      "model": "nexus:block/drive",
+      "y": 270
+    },
+    "facing=north,waterlogged=false": {
+      "model": "nexus:block/drive",
+      "y": 180
+    },
+    "facing=north,waterlogged=true": {
+      "model": "nexus:block/drive",
+      "y": 180
+    },
+    "facing=south,waterlogged=false": {
+      "model": "nexus:block/drive"
+    },
+    "facing=south,waterlogged=true": {
+      "model": "nexus:block/drive"
+    },
+    "facing=up,waterlogged=false": {
+      "model": "nexus:block/drive"
+    },
+    "facing=up,waterlogged=true": {
+      "model": "nexus:block/drive"
+    },
+    "facing=west,waterlogged=false": {
+      "model": "nexus:block/drive",
+      "y": 90
+    },
+    "facing=west,waterlogged=true": {
+      "model": "nexus:block/drive",
+      "y": 90
+    }
+  }
+}

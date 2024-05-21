@@ -18,9 +18,12 @@ public class BlockLootTables extends BlockLootSubProvider {
         dropWhenSilkTouch(Registration.ITEM_PIPE.get());
         dropSelf(Registration.NEXUS.get());
         dropSelf(Registration.INTERFACE.get());
+        dropSelf(Registration.CRAFTING_INTERFACE.get());
+        dropSelf(Registration.DRIVE.get());
     }
 
     protected Iterable<Block> getKnownBlocks() {
-        return List.of(Registration.NEXUS.get(), Registration.ITEM_PIPE.get(), Registration.INTERFACE.get());
+        return List.of(Registration.NEXUS.get(), Registration.ITEM_PIPE.get(), Registration.INTERFACE.get(), Registration.CRAFTING_INTERFACE.get(),
+                Registration.DRIVE.get());
     }
 }

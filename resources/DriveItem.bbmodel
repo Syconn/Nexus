@@ -1,0 +1,73 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "java_block",
+		"box_uv": false
+	},
+	"name": "DriveItem",
+	"parent": "",
+	"ambientocclusion": true,
+	"front_gui_light": false,
+	"visible_box": [1, 1, 0],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "cube",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [7, 0, 5],
+			"to": [10, 1, 10],
+			"autouv": 0,
+			"color": 0,
+			"origin": [8.5, 0.5, 7.5],
+			"faces": {
+				"north": {
+					"uv": [0, 6, 3, 7]
+				},
+				"east": {
+					"uv": [0, 5, 5, 6]
+				},
+				"south": {
+					"uv": [6, 0, 9, 1]
+				},
+				"west": {
+					"uv": [5, 5, 10, 6]
+				},
+				"up": {
+					"uv": [3, 5, 0, 0]
+				},
+				"down": {
+					"uv": [6, 0, 3, 5]
+				}
+			},
+			"type": "cube",
+			"uuid": "eafb8d32-d813-7709-46bd-626ebbeb6243"
+		}
+	],
+	"outliner": [
+		{
+			"name": "drive",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"nbt": "{}",
+			"uuid": "56509cd9-8f4b-a541-ce08-dada4c8afefe",
+			"export": true,
+			"mirror_uv": false,
+			"isOpen": true,
+			"locked": false,
+			"visibility": true,
+			"autouv": 0,
+			"children": ["eafb8d32-d813-7709-46bd-626ebbeb6243"]
+		}
+	],
+	"textures": []
+}

@@ -1,7 +1,6 @@
 package mod.syconn.nexus.datagen;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
@@ -13,11 +12,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.client.model.generators.*;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
-import java.util.Arrays;
 
 public class BlockStateGen extends BlockStateProvider {
 
@@ -34,6 +30,7 @@ public class BlockStateGen extends BlockStateProvider {
 
     private void registerDynamicStates() {
         simpleBlockItem(Registration.INTERFACE.get(), generated(Registration.INTERFACE.get()));
+        simpleBlockItem(Registration.DRIVE.get(), generated(Registration.DRIVE.get()));
         simpleBlockItem(Registration.CRAFTING_INTERFACE.get(), generated(Registration.CRAFTING_INTERFACE.get()));
         getVariantBuilder(Registration.INTERFACE.get()).forAllStatesExcept(state -> {
             Direction direction = state.getValue(InterfaceBlock.FACING);
@@ -55,6 +52,11 @@ public class BlockStateGen extends BlockStateProvider {
                     .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot())
                     .rotationX(direction == Direction.DOWN ? 270 : direction == Direction.UP ? 90 : 0).build();
         });
+        getVariantBuilder(Registration.DRIVE.get()).forAllStatesExcept(state -> {
+            Direction direction = state.getValue(InterfaceBlock.FACING);
+            return ConfiguredModel.builder().modelFile(generated(Registration.DRIVE.get()))
+                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot()).build();
+        }, PipeAttachmentBlock.DOWN, PipeAttachmentBlock.EAST, PipeAttachmentBlock.WEST, PipeAttachmentBlock.NORTH, PipeAttachmentBlock.UP, PipeAttachmentBlock.SOUTH);
     }
 
     private void registerItemCables() {
