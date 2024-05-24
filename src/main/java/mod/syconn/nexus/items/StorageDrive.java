@@ -21,7 +21,7 @@ public class StorageDrive extends Item {
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         if (pIsAdvanced.isAdvanced()) {
             DriveSlot slot = DriveHelper.getDriveSlot(pStack);
-            pTooltipComponents.add(Component.literal(String.valueOf(slot.getMaxQuantity())).withStyle(ChatFormatting.AQUA));
+            pTooltipComponents.add(Component.literal( slot.getQuantity() + "/" + slot.getMaxQuantity() + " blocks").withStyle(ChatFormatting.WHITE).withStyle(ChatFormatting.BOLD));
         }
     }
 }

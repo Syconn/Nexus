@@ -81,7 +81,6 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
         if (shapeCache == null) {
             int length = ConnectionType.values().length;
             shapeCache = new VoxelShape[length * length * length * length * length * length];
-
             for (ConnectionType up : ConnectionType.values()) {
                 for (ConnectionType down : ConnectionType.values()) {
                     for (ConnectionType north : ConnectionType.values()) {
@@ -112,13 +111,9 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     private VoxelShape combineShape(VoxelShape shape, ConnectionType ConnectionType, VoxelShape cableShape, VoxelShape blockShape) {
-        if (ConnectionType == CABLE) {
-            return Shapes.join(shape, cableShape, BooleanOp.OR);
-        } else if (ConnectionType == INPUT || ConnectionType == OUTPUT) {
-            return Shapes.join(shape, Shapes.join(blockShape, cableShape, BooleanOp.OR), BooleanOp.OR);
-        } else {
-            return shape;
-        }
+        if (ConnectionType == CABLE) return Shapes.join(shape, cableShape, BooleanOp.OR);
+        else if (ConnectionType == INPUT || ConnectionType == OUTPUT) return Shapes.join(shape, Shapes.join(blockShape, cableShape, BooleanOp.OR), BooleanOp.OR);
+        else return shape;
     }
 
     public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
@@ -133,40 +128,30 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull LevelAccessor world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
-        if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+        if (state.getValue(BlockStateProperties.WATERLOGGED))
             world.getFluidTicks().schedule(new ScheduledTick<>(Fluids.WATER, current, Fluids.WATER.getTickDelay(world), 0L));
-        }
         return calculateState(world, current, state);
     }
 
     public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof BasePipeBE cable) {
-            cable.markDirty();
-        }
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof BasePipeBE cable) cable.markDirty();
         BlockState blockState = calculateState(level, pos, state);
-        if (state != blockState) {
-            level.setBlockAndUpdate(pos, blockState);
-        }
+        if (state != blockState) level.setBlockAndUpdate(pos, blockState);
     }
 
     protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
-        BlockState state2 = world.getBlockState(pos);
-        Block block = state2.getBlock();
-        if (block instanceof PipeAttachmentBlock) {
-            return CABLE;
-        } else if (isConnectable(world, connectorPos, facing)) {
-            return OUTPUT;
-        } else {
-            return ConnectionType.NONE;
-        }
+        if (world.getBlockEntity(pos) instanceof BasePipeBE be && be.canConnect(pos, facing)) return CABLE;
+        else if (isConnectable(world, connectorPos, facing)) return OUTPUT;
+        else return ConnectionType.NONE;
     }
 
     public static boolean isConnectable(BlockGetter world, BlockPos connectorPos, Direction facing) {
         BlockPos pos = connectorPos.relative(facing);
         BlockState state = world.getBlockState(pos);
-        if (state.is(Registration.PIPE_CONNECTIVE)) return true;
+        if (world.getBlockEntity(pos) instanceof BasePipeBE be && !be.canConnect(pos, facing)) return false;
+        else if (state.is(Registration.PIPE_CONNECTIVE)) return true;
         return state.is(Registration.DIRECTIONAL_PIPE_CONNECTIVE) && state.getValue(InterfaceBlock.FACING) == facing;
     }
 
@@ -205,28 +190,24 @@ public abstract class PipeAttachmentBlock extends Block implements SimpleWaterlo
     }
 
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-//        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
-//            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE) && !pLevel.getBlockState(pPos.below()).is(Blocks.GREEN_CONCRETE)) {
-//                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
-//                    if (!PipeNetworks.get((ServerLevel) pLevel).isStoragePoint(be.getUUID(), pos)) pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
-//                    else pLevel.setBlock(pos.below(), Blocks.GREEN_CONCRETE.defaultBlockState(), 2);
-//                }
-//            }
-//            else {
-//                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
-//                    pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
-//                }
-//            }
-//            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel);
-//        }
+        if (pHand == InteractionHand.MAIN_HAND && !pLevel.isClientSide() && pPlayer.getItemInHand(pHand).isEmpty() && pLevel.getBlockEntity(pPos) instanceof BasePipeBE be) {
+            if (!pLevel.getBlockState(pPos.below()).is(Blocks.STONE) && !pLevel.getBlockState(pPos.below()).is(Blocks.GREEN_CONCRETE)) {
+                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
+                    if (!PipeNetworks.get((ServerLevel) pLevel).isStoragePoint(be.getUUID(), pos)) pLevel.setBlock(pos.below(), Blocks.STONE.defaultBlockState(), 2);
+                    else pLevel.setBlock(pos.below(), Blocks.GREEN_CONCRETE.defaultBlockState(), 2);
+                }
+            }
+            else {
+                for (BlockPos pos : PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel)) {
+                    pLevel.setBlock(pos.below(), Blocks.AIR.defaultBlockState(), 2);
+                }
+            }
+            PipeNetworks.get((ServerLevel) pLevel).getAllPipesByUUID(be.getUUID(), pLevel);
+        }
         return InteractionResult.PASS;
     }
 
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return (lvl, pos, st, be) -> {
-            if (be instanceof BasePipeBE cable) {
-                cable.tickServer();
-            }
-        };
+        return (lvl, pos, st, be) -> { if (be instanceof BasePipeBE cable) cable.tickServer(); };
     }
 }

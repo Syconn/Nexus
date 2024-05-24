@@ -1,5 +1,6 @@
 package mod.syconn.nexus;
 
+import mod.syconn.nexus.client.ClientHandler;
 import mod.syconn.nexus.datagen.*;
 import mod.syconn.nexus.network.Channel;
 import net.minecraft.core.registries.Registries;
@@ -9,8 +10,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -46,9 +49,9 @@ public class Nexus {
         var pack = event.getGenerator().getVanillaPack(true);
         pack.addProvider(LangGen::new);
         pack.addProvider(LootTableGen::new);
+        pack.addProvider(pOutput -> new ItemModelGen(pOutput, fileHelper));
         pack.addProvider(pOutput -> new RecipeGen(pOutput, event.getLookupProvider()));
         pack.addProvider(pOutput -> new BlockStateGen(pOutput, fileHelper));
-        pack.addProvider(pOutput -> new ItemModelGen(pOutput, fileHelper));
         pack.addProvider(pOutput -> new BlockTagsGen(pOutput, event.getLookupProvider(), fileHelper));
     }
 }

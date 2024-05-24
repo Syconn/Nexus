@@ -29,8 +29,9 @@ public class PipeNetworks extends SavedData {
         if (level.getBlockEntity(pos) instanceof BasePipeBE temp && temp.getUUID() == null) {
             UUID uuid = UUID.randomUUID();
             pipe_network.put(uuid, new PipeNetwork(uuid, pos));
-            if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
-            for (Direction d : Direction.values()) if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be && be.getUUID() != null && !be.getUUID().equals(uuid)) uuid = conjoin(level, uuid, be.getUUID());
+            temp.setUUID(uuid);
+            for (Direction d : Direction.values()) if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be && be.canConnect(pos, d)
+                    && temp.canConnect(pos.relative(d), d.getOpposite()) && be.getUUID() != null && !be.getUUID().equals(uuid)) uuid = conjoin(level, uuid, be.getUUID());
             setDirty();
             return uuid;
         }

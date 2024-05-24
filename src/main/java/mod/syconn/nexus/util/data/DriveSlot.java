@@ -1,6 +1,7 @@
 package mod.syconn.nexus.util.data;
 
 import com.google.common.collect.Lists;
+import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.util.NBTHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -43,6 +44,7 @@ public class DriveSlot {
                     if (ItemStack.isSameItemSameTags(stackList.get(i), stack)) {
                         stackList.set(i, stack.copyWithCount(stackList.get(i).getCount() + (Math.min(stack.getCount(), max_quantity - storage_quantity))));
                         stored_items.put(stack.getItem(), stackList);
+                        storage_quantity += Math.min(stack.getCount(), max_quantity - storage_quantity);
                         return stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity));
                     }
                 }
@@ -51,6 +53,7 @@ public class DriveSlot {
             } else {
                 stored_items.put(stack.getItem(), Lists.newArrayList(stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity))));
             }
+            storage_quantity += Math.min(stack.getCount(), max_quantity - storage_quantity);
             return stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity));
         }
         return stack;
@@ -62,6 +65,7 @@ public class DriveSlot {
             for (int i = 0; i < stackList.size(); i++) {
                 if (ItemStack.isSameItemSameTags(stackList.get(i), stack) && stackList.get(i).getCount() >= stack.getCount()) {
                     stackList.set(i, stack.copyWithCount(stackList.get(i).getCount() - stack.getCount()));
+                    storage_quantity -= stackList.get(i).getCount() - stack.getCount();
                     return stack;
                 } else return ItemStack.EMPTY;
             }
@@ -69,12 +73,25 @@ public class DriveSlot {
         return ItemStack.EMPTY;
     }
 
+    public int getQuantity() {
+        return storage_quantity;
+    }
+
     public int getMaxQuantity() {
         return max_quantity;
     }
 
+    public int getColor() {
+        return (storage_quantity >= max_quantity) ? 2 : (storage_quantity >= max_quantity / 2) ? 1 : 0;
+    }
+
     public Map<Item, List<ItemStack>> getStoredItems() {
         return stored_items;
+    }
+
+    public ResourceLocation getTexture() {
+        String loc = storage_quantity >= max_quantity ? "red" : storage_quantity >= max_quantity / 2 ? "yellow" : "green";
+        return new ResourceLocation(Nexus.MODID, "textures/entity/drive_" + loc + ".png");
     }
 
     public CompoundTag save() {

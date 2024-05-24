@@ -55,7 +55,7 @@ public class BlockStateGen extends BlockStateProvider {
         getVariantBuilder(Registration.DRIVE.get()).forAllStatesExcept(state -> {
             Direction direction = state.getValue(InterfaceBlock.FACING);
             return ConfiguredModel.builder().modelFile(generated(Registration.DRIVE.get()))
-                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot()).build();
+                    .rotationY(direction.getAxis().isVertical() ? 0 : (int) direction.toYRot() - 180).build();
         }, PipeAttachmentBlock.DOWN, PipeAttachmentBlock.EAST, PipeAttachmentBlock.WEST, PipeAttachmentBlock.NORTH, PipeAttachmentBlock.UP, PipeAttachmentBlock.SOUTH);
     }
 
