@@ -8,25 +8,25 @@
     },
     "facing=east,waterlogged=false": {
       "model": "nexus:block/drive",
-      "y": 270
+      "y": 90
     },
     "facing=east,waterlogged=true": {
       "model": "nexus:block/drive",
-      "y": 270
+      "y": 90
     },
     "facing=north,waterlogged=false": {
-      "model": "nexus:block/drive",
-      "y": 180
+      "model": "nexus:block/drive"
     },
     "facing=north,waterlogged=true": {
-      "model": "nexus:block/drive",
-      "y": 180
+      "model": "nexus:block/drive"
     },
     "facing=south,waterlogged=false": {
-      "model": "nexus:block/drive"
+      "model": "nexus:block/drive",
+      "y": -180
     },
     "facing=south,waterlogged=true": {
-      "model": "nexus:block/drive"
+      "model": "nexus:block/drive",
+      "y": -180
     },
     "facing=up,waterlogged=false": {
       "model": "nexus:block/drive"
@@ -36,11 +36,11 @@
     },
     "facing=west,waterlogged=false": {
       "model": "nexus:block/drive",
-      "y": 90
+      "y": -90
     },
     "facing=west,waterlogged=true": {
       "model": "nexus:block/drive",
-      "y": 90
+      "y": -90
     }
   }
 }

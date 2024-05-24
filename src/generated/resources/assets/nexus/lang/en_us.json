@@ -5,5 +5,6 @@
   "block.nexus.interface": "Interface",
   "block.nexus.item_pipe": "Item Pipe",
   "block.nexus.nexus": "Nexus",
+  "item.nexus.storage_drive": "Storage Drive",
   "itemGroup.nexus": "Nexus"
 }

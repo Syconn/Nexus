@@ -1,0 +1,109 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "modded_entity",
+		"box_uv": true
+	},
+	"name": "DriveItem_Converted",
+	"model_identifier": "DriveItem - Converted",
+	"modded_entity_entity_class": "",
+	"modded_entity_version": "1.17",
+	"modded_entity_flip_y": true,
+	"visible_box": [1, 1, 0],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "cube",
+			"box_uv": true,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [-1, 0, -3],
+			"to": [2, 1, 2],
+			"autouv": 0,
+			"color": 0,
+			"origin": [0.5, 0.5, -0.5],
+			"faces": {
+				"north": {
+					"uv": [5, 5, 8, 6],
+					"texture": false
+				},
+				"east": {
+					"uv": [0, 5, 5, 6],
+					"texture": false
+				},
+				"south": {
+					"uv": [13, 5, 16, 6],
+					"texture": false
+				},
+				"west": {
+					"uv": [8, 5, 13, 6],
+					"texture": false
+				},
+				"up": {
+					"uv": [8, 5, 5, 0],
+					"texture": false
+				},
+				"down": {
+					"uv": [11, 0, 8, 5],
+					"texture": false
+				}
+			},
+			"type": "cube",
+			"uuid": "eafb8d32-d813-7709-46bd-626ebbeb6243"
+		}
+	],
+	"outliner": [
+		{
+			"name": "drive",
+			"origin": [0, 8, 0],
+			"color": 0,
+			"nbt": "{}",
+			"uuid": "56509cd9-8f4b-a541-ce08-dada4c8afefe",
+			"export": true,
+			"mirror_uv": false,
+			"isOpen": true,
+			"locked": false,
+			"visibility": true,
+			"autouv": 0,
+			"children": ["eafb8d32-d813-7709-46bd-626ebbeb6243"]
+		}
+	],
+	"textures": [
+		{
+			"path": "C:\\Users\\Aidan\\IdeaProjects\\Nexus\\resources\\texture6.png",
+			"name": "texture6.png",
+			"folder": "block",
+			"namespace": "",
+			"id": "0",
+			"width": 16,
+			"height": 16,
+			"uv_width": 16,
+			"uv_height": 16,
+			"particle": false,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": true,
+			"uuid": "94c53789-1a90-c39e-a847-e3c2294e6a92",
+			"relative_path": "texture6.png",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAGVJREFUOE9jZMACtlx5+B8mPL93MlzF2vk9jOjKMQRACkAGWKjIMJy484QBZIC0uATD05cvGIaYAUSHgfOLXniAwTRJXEmHh9XMU5Mwgpkl/A1cDGsgYosZXGKjBjAwjIYBFcIAAGnxPFeFpbleAAAAAElFTkSuQmCC"
+		}
+	]
+}

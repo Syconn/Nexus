@@ -8,7 +8,7 @@ public class DriveHelper {
 
     public static ItemStack createStorageDrive(int storage) {
         ItemStack stack = new ItemStack(Registration.STORAGE_DRIVE.get());
-        stack.getOrCreateTag().putInt("max", storage);
+        stack.getOrCreateTag().put("data", new DriveSlot(storage).save());
         return stack;
     }
 

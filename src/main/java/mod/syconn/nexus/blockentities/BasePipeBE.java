@@ -1,6 +1,7 @@
 package mod.syconn.nexus.blockentities;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,6 +25,10 @@ public abstract class BasePipeBE extends SyncedBE {
 
     public UUID getUUID() {
         return uuid;
+    }
+
+    public boolean canConnect(BlockPos pos, Direction conDir) {
+        return true;
     }
 
     protected void saveClientData(CompoundTag tag) {

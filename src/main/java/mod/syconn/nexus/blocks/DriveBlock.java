@@ -1,20 +1,22 @@
 package mod.syconn.nexus.blocks;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.DriveBE;
 import mod.syconn.nexus.items.StorageDrive;
+import mod.syconn.nexus.util.DriveHelper;
+import mod.syconn.nexus.util.data.DriveSlot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -38,14 +40,26 @@ public class DriveBlock extends PipeAttachmentBlock {
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
         if (!pLevel.isClientSide() && pHand == InteractionHand.MAIN_HAND && pLevel.getBlockEntity(pPos) instanceof DriveBE be) {
-            if (stack.getItem() instanceof StorageDrive) return be.addDrive(stack) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (stack.getItem() instanceof StorageDrive) {
+                boolean flag = be.addDrive(stack);
+                if (flag) pPlayer.setItemInHand(pHand, ItemStack.EMPTY);
+                return flag ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            }
             else if (stack.isEmpty()) {
-                ItemStack flag = be.removeDrive();
-                pPlayer.setItemInHand(pHand, stack);
+                ItemStack flag = be.removeDrive().copy();
+                pPlayer.setItemInHand(pHand, flag);
                 return !flag.isEmpty() ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             }
         }
         return InteractionResult.PASS;
+    }
+
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
+        if (pLevel.getBlockEntity(pPos) instanceof DriveBE be) {
+            for (DriveSlot driveSlot : be.getDriveSlots()) if (driveSlot != null) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), DriveHelper.getStorageDrive(driveSlot));
+            pLevel.updateNeighbourForOutputSignal(pPos, pState.getBlock());
+        }
+        super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);
     }
 
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
@@ -70,6 +84,6 @@ public class DriveBlock extends PipeAttachmentBlock {
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        return super.getStateForPlacement(pContext).setValue(FACING, pContext.getHorizontalDirection());
+        return super.getStateForPlacement(pContext).setValue(FACING, pContext.getHorizontalDirection().getOpposite());
     }
 }

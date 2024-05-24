@@ -1,1 +1,4 @@
-// 1.20.4	2024-04-28T20:21:46.4034115	vanilla/Item Models: nexus
+// 1.20.4	2024-05-23T22:19:29.6186846	vanilla/Item Models: nexus
+dff05e6d40f1184251268b66a6dae9038b70bdb7 assets/nexus/models/item/drive_item_red.json
+7b42c0586e05bb434aedb1e77d9647260211db48 assets/nexus/models/item/drive_item_yellow.json
+d32c60dd4035a16f519af2d55f6abf25e4be979a assets/nexus/models/item/storage_drive.json
