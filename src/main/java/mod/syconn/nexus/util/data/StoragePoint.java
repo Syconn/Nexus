@@ -1,5 +1,6 @@
 package mod.syconn.nexus.util.data;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.util.ItemStackHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -52,7 +53,12 @@ public class StoragePoint {
         stacks.clear();
         liquids.clear();
         if (level.getBlockEntity(inventoryPos) == null) return;
-        if (level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) stacks = ItemStackHelper.combineItemsInStorage(level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null), Blocks.AIR.asItem());
+        if (level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null) != null) {
+            stacks = ItemStackHelper.combineItemsInStorage(level.getCapability(Capabilities.ItemHandler.BLOCK, inventoryPos, null), Blocks.AIR.asItem());
+        }
+        if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, inventoryPos, null) != null) {
+            stacks = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, inventoryPos, null).getStacks();
+        }
     }
 
     public CompoundTag save() {

@@ -1,7 +1,6 @@
 package mod.syconn.nexus.world.savedata;
 
 import mod.syconn.nexus.blockentities.BasePipeBE;
-import mod.syconn.nexus.blocks.NexusBlock;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import net.minecraft.core.BlockPos;
@@ -73,7 +72,7 @@ public class PipeNetworks extends SavedData {
             UUID uuid = be.getUUID();
             if (pipe_network.containsKey(uuid)) {
                 delete = pipe_network.get(uuid).removePosition(pos);
-                pipe_network.get(uuid).removeStoragePoint(pos);
+//                pipe_network.get(uuid).removeStoragePoint(pos);
                 if (delete) pipe_network.remove(uuid);
             }
             validLine(level, uuid);
@@ -117,13 +116,6 @@ public class PipeNetworks extends SavedData {
     public List<BlockPos> getAllPipesByUUID(UUID uuid, Level level) {
         if (pipe_network.containsKey(uuid)) return pipe_network.get(uuid).getPipes();
         return List.of();
-    }
-
-    public boolean isStoragePoint(UUID uuid, BlockPos pos) {
-        for (StoragePoint point : pipe_network.get(uuid).getStoragePoints()) {
-            if (point.getPos().equals(pos)) return true;
-        }
-        return false;
     }
 
     public List<BlockPos> getNexusBlocks(Level level, UUID uuid) {

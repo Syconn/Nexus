@@ -60,7 +60,7 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
         };
     }
 
-    protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos thisPos, Direction facing) {
+    protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos thisPos, Direction facing) { // TODO LOOK AT THIS
 //        if (state.getValue(FACING).getOpposite() == facing) return CABLE;
 //        else if (world.getBlockEntity(thisPos.relative(facing)) != null &&
 //                world.getBlockEntity(thisPos.relative(facing)).getLevel().getCapability(Capabilities.ItemHandler.BLOCK, thisPos.relative(facing), null) != null) return NONE;

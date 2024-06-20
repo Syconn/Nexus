@@ -5,8 +5,10 @@ import mod.syconn.nexus.blockentities.DriveBE;
 import mod.syconn.nexus.items.StorageDrive;
 import mod.syconn.nexus.util.DriveHelper;
 import mod.syconn.nexus.util.data.DriveSlot;
+import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -27,6 +29,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 public class DriveBlock extends PipeAttachmentBlock {
 
@@ -54,9 +58,17 @@ public class DriveBlock extends PipeAttachmentBlock {
         return InteractionResult.PASS;
     }
 
+    public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pMovedByPiston) {
+        if (!pLevel.isClientSide()) {
+            PipeNetworks network = PipeNetworks.get((ServerLevel) pLevel);
+            UUID uuid = network.addPipe(pLevel, pPos);
+            network.addStoragePoint(pLevel, pPos, pPos, uuid);
+        }
+    }
+
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
         if (pLevel.getBlockEntity(pPos) instanceof DriveBE be) {
-            for (DriveSlot driveSlot : be.getDriveSlots()) if (driveSlot != null) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), DriveHelper.getStorageDrive(driveSlot));
+            for (DriveSlot driveSlot : be.getDrive().getDriveSlots()) if (driveSlot != null) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), DriveHelper.getStorageDrive(driveSlot));
             pLevel.updateNeighbourForOutputSignal(pPos, pState.getBlock());
         }
         super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);

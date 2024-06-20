@@ -3,6 +3,8 @@ package mod.syconn.nexus.items;
 import mod.syconn.nexus.util.DriveHelper;
 import mod.syconn.nexus.util.data.DriveSlot;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +24,12 @@ public class StorageDrive extends Item {
         if (pIsAdvanced.isAdvanced()) {
             DriveSlot slot = DriveHelper.getDriveSlot(pStack);
             pTooltipComponents.add(Component.literal( slot.getQuantity() + "/" + slot.getMaxQuantity() + " blocks").withStyle(ChatFormatting.WHITE).withStyle(ChatFormatting.BOLD));
+            if (Screen.hasShiftDown()) {
+                if (!slot.getStacks().isEmpty()) pTooltipComponents.add(Component.empty());
+                for (int i = 0; i < Math.min(slot.getStacks().size(), 5); i++) {
+                    pTooltipComponents.add(Component.literal(slot.getStacks().get(i).getStack().toString()).withStyle(ChatFormatting.ITALIC));
+                }
+            } else if (slot.getQuantity() > 0) pTooltipComponents.add(Component.literal("Press SHIFT to view items").withStyle(ChatFormatting.YELLOW));
         }
     }
 }

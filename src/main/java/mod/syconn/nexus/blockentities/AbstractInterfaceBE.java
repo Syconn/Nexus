@@ -1,10 +1,12 @@
 package mod.syconn.nexus.blockentities;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.InterfaceBlock;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
+import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.capabilities.UncappedItemHandler;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
@@ -96,9 +98,16 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
-                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null);
-                    ItemStackHelper.removeStack((IItemHandlerModifiable) handler, stack, simulate);
-                    onContentsChanged(slot);
+                    if (level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null) != null) {
+                        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null);
+                        ItemStackHelper.removeStack((IItemHandlerModifiable) handler, stack, simulate);
+                        onContentsChanged(slot);
+                    } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(0), null) != null) {
+                        IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(0), null);
+                        ItemStack returnStack = handler.removeStack(stack);
+                        onContentsChanged(slot);
+                        return returnStack;
+                    }
                 }
                 return stack;
             }
@@ -110,22 +119,29 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
                 if (level != null && !level.isClientSide() && !updateScreen && !addStack.isEmpty()) {
                     PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(getUUID());
                     for (StoragePoint point : network.getStoragePoints()) {
-                        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                        ItemStack stack2 = ItemHandlerHelper.insertItemStacked(handler, addStack, false);
-                        onContentsChanged(slot);
-                        if (stack2.isEmpty()) break;
+                        if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
+                            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                            addStack = ItemHandlerHelper.insertItemStacked(handler, addStack, false);
+                            onContentsChanged(slot);
+                            if (addStack.isEmpty()) break;
+                        } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) {
+                            IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
+                            addStack = handler.addStack(addStack);
+                            onContentsChanged(slot);
+                            if (addStack.isEmpty()) break;
+                        }
                     }
                 }
             }
 
             public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
                 if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.insertItem(slot, stack, simulate);
-                return ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID());
+                return ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID(), simulate);
             }
 
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 if (level == null || level.isClientSide() || updateScreen || stack.isEmpty()) return super.isItemValid(slot, stack);
-                return !ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID()).equals(stack);
+                return ItemStackHelper.canAddItemStack(stack, (ServerLevel) level, getUUID());
             }
         };
     }
@@ -174,9 +190,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
 
     protected void loadClientData(CompoundTag tag) {
         super.loadClientData(tag);
-        if (tag.contains(ITEMS_TAG)) {
-            items.deserializeNBT(tag.getCompound(ITEMS_TAG));
-        }
+        if (tag.contains(ITEMS_TAG)) items.deserializeNBT(tag.getCompound(ITEMS_TAG));
         tag.getList("registry", Tag.TAG_COMPOUND).forEach(tag2 -> {
             CompoundTag nbt = (CompoundTag) tag2;
             registry.put(nbt.getInt("int"), NBTHelper.loadPositions(nbt.getCompound("positions")));

@@ -138,7 +138,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 Slot slot = this.slots.get(i);
                 ItemStack itemstack = slot.getItem();
                 if (!itemstack.isEmpty() && ItemStack.isSameItemSameTags(pStack, itemstack) && i < 46 && level != null && !level.isClientSide() && level.getBlockEntity(pos) instanceof CraftingInterfaceBE be) {
-                    ItemStack remainder = ItemStackHelper.canAddItemStack(pStack, (ServerLevel) level, be.getUUID());
+                    ItemStack remainder = ItemStackHelper.canAddItemStack(pStack, (ServerLevel) level, be.getUUID(), true);
                     if (!ItemStack.matches(pStack, remainder)) {
                         items.setStackInSlot(i, itemstack.copyWithCount(itemstack.getCount() + (pStack.getCount() - remainder.getCount())));
                         pStack.setCount(remainder.getCount());

@@ -1,80 +1,82 @@
 package mod.syconn.nexus.util.data;
 
-import com.google.common.collect.Lists;
 import mod.syconn.nexus.Nexus;
-import mod.syconn.nexus.util.NBTHelper;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DriveSlot {
 
-    private final Map<Item, List<ItemStack>> stored_items;
+    private final List<ItemTypes> stored_items;
     private final int max_quantity;
-    private int storage_quantity;
+    private int quantity;
 
     public DriveSlot(int max_quantity) {
         this.max_quantity = max_quantity;
-        this.stored_items = new HashMap<>();
+        this.stored_items = new ArrayList<>();
     }
 
     public DriveSlot(CompoundTag tag) {
         max_quantity = tag.getInt("max");
-        storage_quantity = tag.getInt("quantity");
-        stored_items = new HashMap<>();
-        tag.getList("list", Tag.TAG_COMPOUND).forEach(nbt -> {
-            CompoundTag entry = (CompoundTag) nbt;
-            stored_items.put(BuiltInRegistries.ITEM.get(new ResourceLocation(entry.getString("item"))), NBTHelper.loadStacks(entry.getCompound("stacks")));
-        });
+        quantity = tag.getInt("quantity");
+        stored_items = new ArrayList<>();
+        if (tag.contains("list"))
+            tag.getList("list", Tag.TAG_COMPOUND).forEach(nbt -> stored_items.add(new ItemTypes(((CompoundTag) nbt).getCompound("type"))));
     }
 
+    /**
+     * Add stack item stack.
+     *
+     * @param stack the stack
+     * @return the item stack and count added
+     */
     public ItemStack addStack(ItemStack stack) {
-        if (storage_quantity < max_quantity) {
-            if (stored_items.containsKey(stack.getItem())) {
-                List<ItemStack> stackList = stored_items.get(stack.getItem());
-                for (int i = 0; i < stackList.size(); i++) {
-                    if (ItemStack.isSameItemSameTags(stackList.get(i), stack)) {
-                        stackList.set(i, stack.copyWithCount(stackList.get(i).getCount() + (Math.min(stack.getCount(), max_quantity - storage_quantity))));
-                        stored_items.put(stack.getItem(), stackList);
-                        storage_quantity += Math.min(stack.getCount(), max_quantity - storage_quantity);
-                        return stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity));
-                    }
+        if (quantity < max_quantity) {
+            int toAdd = canAddUpTo(stack);
+            for (ItemTypes type : stored_items) {
+                if (type.sameType(stack)) {
+                    type.addStack(stack.copyWithCount(toAdd));
+                    quantity += toAdd;
+                    return stack.copyWithCount(Math.min(toAdd, max_quantity - quantity));
                 }
-                stackList.add(stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity)));
-                stored_items.put(stack.getItem(), stackList);
-            } else {
-                stored_items.put(stack.getItem(), Lists.newArrayList(stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity))));
             }
-            storage_quantity += Math.min(stack.getCount(), max_quantity - storage_quantity);
-            return stack.copyWithCount(Math.min(stack.getCount(), max_quantity - storage_quantity));
+            if (toAdd > 0) {
+                stored_items.add(new ItemTypes(stack, toAdd));
+                quantity += toAdd;
+                return stack.copyWithCount(Math.min(toAdd, max_quantity - quantity));
+            }
         }
         return stack;
     }
 
-    public ItemStack removeItem(ItemStack stack) {
-        if (stored_items.containsKey(stack.getItem())) {
-            List<ItemStack> stackList = stored_items.get(stack.getItem());
-            for (int i = 0; i < stackList.size(); i++) {
-                if (ItemStack.isSameItemSameTags(stackList.get(i), stack) && stackList.get(i).getCount() >= stack.getCount()) {
-                    stackList.set(i, stack.copyWithCount(stackList.get(i).getCount() - stack.getCount()));
-                    storage_quantity -= stackList.get(i).getCount() - stack.getCount();
-                    return stack;
-                } else return ItemStack.EMPTY;
+    public ItemStack removeStack(ItemStack stack) {
+        List<ItemTypes> remove = new ArrayList<>();
+        int amount = 0;
+        for (ItemTypes type : stored_items) {
+            if (type.sameType(stack)) {
+                amount = type.extractStack(stack.getCount());
+                if (type.amount <= 0) remove.add(type);
             }
         }
-        return ItemStack.EMPTY;
+        stored_items.removeAll(remove);
+        return stack.copyWithCount(amount);
+    }
+
+    public int canAddUpTo(ItemStack stack) {
+        return Math.min(stack.getCount(), max_quantity - quantity);
+    }
+
+    public List<ItemTypes> getStacks() {
+        return stored_items;
     }
 
     public int getQuantity() {
-        return storage_quantity;
+        return quantity;
     }
 
     public int getMaxQuantity() {
@@ -82,30 +84,88 @@ public class DriveSlot {
     }
 
     public int getColor() {
-        return (storage_quantity >= max_quantity) ? 2 : (storage_quantity >= max_quantity / 2) ? 1 : 0;
-    }
-
-    public Map<Item, List<ItemStack>> getStoredItems() {
-        return stored_items;
+        return (quantity >= max_quantity) ? 2 : (quantity >= max_quantity / 2) ? 1 : 0;
     }
 
     public ResourceLocation getTexture() {
-        String loc = storage_quantity >= max_quantity ? "red" : storage_quantity >= max_quantity / 2 ? "yellow" : "green";
+        String loc = quantity >= max_quantity ? "red" : quantity >= max_quantity / 2 ? "yellow" : "green";
         return new ResourceLocation(Nexus.MODID, "textures/entity/drive_" + loc + ".png");
     }
 
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("max", max_quantity);
-        tag.putInt("quantity", storage_quantity);
+        tag.putInt("quantity", quantity);
         ListTag list = new ListTag();
-        stored_items.forEach((item, stackedList) -> {
+        stored_items.forEach(itemTypes -> {
             CompoundTag entry = new CompoundTag();
-            entry.putString("item", BuiltInRegistries.ITEM.getKey(item).toString());
-            entry.put("stacks", NBTHelper.saveStacks(stackedList));
+            entry.put("type", itemTypes.save());
             list.add(entry);
         });
         tag.put("list", list);
         return tag;
+    }
+
+    public static class ItemTypes {
+
+        private final ItemStack id;
+        private int amount;
+
+        public ItemTypes(ItemStack id, int amount) {
+            this.id = id.copyWithCount(1);
+            this.amount = amount;
+        }
+
+        public ItemTypes(CompoundTag tag) {
+            this.id = ItemStack.of(tag);
+            this.amount = tag.getInt("amount");
+        }
+
+        public boolean sameType(ItemStack check) {
+            return ItemStack.isSameItemSameTags(check, id);
+        }
+
+        private void addStack(ItemStack stack) {
+            if (sameType(stack)) amount += stack.getCount();
+        }
+
+        private int extractStack(int size) {
+            int returnAmount = Math.min(Math.abs(size - amount), amount);
+            amount -= returnAmount;
+            return returnAmount;
+        }
+
+        private ItemTypes addType(ItemTypes itemType) {
+            if (sameType(itemType.id)) amount += itemType.amount;
+            return this;
+        }
+
+        public ItemStack getStack() {
+            return id.copyWithCount(amount);
+        }
+
+        public static List<ItemStack> convertToStacks(List<ItemTypes> types) {
+            List<ItemTypes> typeList = new ArrayList<>();
+            List<ItemStack> stackList = new ArrayList<>();
+            for (ItemTypes type1 : types) {
+                boolean contained = false;
+                for (int i = 0; i < typeList.size(); i++) {
+                    if (type1.sameType(typeList.get(i).id)) {
+                        contained = true;
+                        typeList.set(i, type1.addType(typeList.get(i)));
+                    }
+                }
+                if (!contained) typeList.add(type1);
+            }
+            for (ItemTypes type : typeList) stackList.add(type.getStack());
+            return stackList;
+        }
+
+        public CompoundTag save() {
+            CompoundTag tag = new CompoundTag();
+            tag.putInt("amount", amount);
+            id.save(tag);
+            return tag;
+        }
     }
 }

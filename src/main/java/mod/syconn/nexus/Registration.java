@@ -4,8 +4,10 @@ import mod.syconn.nexus.blockentities.*;
 import mod.syconn.nexus.blocks.*;
 import mod.syconn.nexus.items.StorageDrive;
 import mod.syconn.nexus.util.DriveHelper;
+import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.menu.CraftingInterfaceMenu;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -19,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -28,6 +31,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 import static mod.syconn.nexus.Nexus.MODID;
@@ -75,6 +79,8 @@ public class Registration {
     public static final Supplier<MenuType<InterfaceMenu>> INTERFACE_MENU = MENUS.register("interface", () -> IMenuTypeExtension.create((windowId, inv, data) -> new InterfaceMenu(windowId, inv.player, data.readBlockPos())));
     public static final Supplier<MenuType<CraftingInterfaceMenu>> CRAFTING_INTERFACE_MENU = MENUS.register("crafting_interface", () -> IMenuTypeExtension.create((windowId, inv, data) -> new CraftingInterfaceMenu(windowId, inv.player, data.readBlockPos())));
 
+    public static final BlockCapability<IDriveHandler, Direction> DRIVE_HANDLER_BLOCK = BlockCapability.create(new ResourceLocation(MODID, "drive_handler"), IDriveHandler.class, Direction.class);
+
     public static void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == NEXUS_TAB.getKey()) {
             ITEMS.getEntries().forEach(i -> {
@@ -88,5 +94,7 @@ public class Registration {
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, INTERFACE_BE.get(), (o, direction) -> o.getItemHandler());
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, CRAFTING_INTERFACE_BE.get(), (o, direction) -> o.getItemHandler());
+        event.registerBlockEntity(DRIVE_HANDLER_BLOCK, DRIVE_BE.get(), (o, direction) -> o.getDriveHandler());
     }
 }

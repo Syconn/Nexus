@@ -1,5 +1,6 @@
 package mod.syconn.nexus.util.data;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
 import mod.syconn.nexus.blocks.NexusBlock;
 import mod.syconn.nexus.util.NBTHelper;
@@ -62,14 +63,14 @@ public class PipeNetwork {
         return pipes.isEmpty();
     }
 
-    public boolean removeStoragePoint(BlockPos pos) {
-        for (int i = 0; i < storagePoints.size(); i++) {
-            if (storagePoints.get(i).getPos().equals(pos)) {
-                return storagePoints.remove(storagePoints.get(i));
-            }
-        }
-        return false;
-    }
+//    public boolean removeStoragePoint(BlockPos pos) {
+//        for (int i = 0; i < storagePoints.size(); i++) {
+//            if (storagePoints.get(i).getPos().equals(pos)) {
+//                return storagePoints.remove(storagePoints.get(i));
+//            }
+//        }
+//        return false;
+//    }
 
     public List<BlockPos> getPipes() {
         return pipes;
@@ -101,8 +102,8 @@ public class PipeNetwork {
         if (update) {
             List<StoragePoint> points = new ArrayList<>();
             for (StoragePoint point : storagePoints)
-                if (!points.contains(point) && level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null)
-                    points.add(point);
+                if (!points.contains(point) && level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null ||
+                        level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) points.add(point);
             storagePoints = points;
         }
         storagePoints.forEach(p -> p.update(level));

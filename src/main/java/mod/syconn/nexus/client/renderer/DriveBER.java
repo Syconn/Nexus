@@ -32,8 +32,8 @@ public class DriveBER implements BlockEntityRenderer<DriveBE> {
             pPoseStack.translate(0.5, -0.6875, 0.5);
             pPoseStack.mulPose(Axis.YP.rotationDegrees((facing.get2DDataValue() - 2) * -90));
             pPoseStack.translate(0.25, 0, -0.3);
-            for (int i = 0; i < pBlockEntity.getDriveSlots().length; i++) {
-                DriveSlot driveSlot = pBlockEntity.getDriveSlots()[i];
+            for (int i = 0; i < pBlockEntity.getDriveHandler().getDriveSlots().length; i++) {
+                DriveSlot driveSlot = pBlockEntity.getDriveHandler().getDriveSlots()[i];
                 if (driveSlot != null) {
                     pPoseStack.pushPose();
                     pPoseStack.translate( i > 4 ? -0.4375 : 0, i > 4 ?  -0.125 * (i - 5) : -0.125 * i, 0);
