@@ -53,7 +53,7 @@ public class ItemStackHelper {
             if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
 //                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
 //                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
-            } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) { //TODO NEED A CAN ADD METHOD
+            } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) {
                 IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
                 int addTotal = pStack.getCount();
                 for (DriveSlot driveSlot : handler.getDriveSlots()) {
@@ -62,6 +62,7 @@ public class ItemStackHelper {
                         if (addTotal <= 0) return true;
                     }
                 }
+                return addTotal < pStack.getCount();
             }
         }
         return false;

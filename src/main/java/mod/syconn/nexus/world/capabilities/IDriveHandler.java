@@ -13,7 +13,7 @@ public interface IDriveHandler {
 
     ItemStack addStack(ItemStack stack);
 
-    ItemStack removeStack(ItemStack stack);
+    ItemStack removeStack(ItemStack stack, boolean simulate);
 
     boolean addDrive(ItemStack stack);
 

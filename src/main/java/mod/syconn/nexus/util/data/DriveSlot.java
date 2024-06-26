@@ -42,25 +42,27 @@ public class DriveSlot {
                 if (type.sameType(stack)) {
                     type.addStack(stack.copyWithCount(toAdd));
                     quantity += toAdd;
-                    return stack.copyWithCount(Math.min(toAdd, max_quantity - quantity));
+                    return stack.copyWithCount(toAdd);
                 }
             }
             if (toAdd > 0) {
                 stored_items.add(new ItemTypes(stack, toAdd));
                 quantity += toAdd;
-                return stack.copyWithCount(Math.min(toAdd, max_quantity - quantity));
+                return stack.copyWithCount(toAdd);
             }
         }
         return stack;
     }
 
-    public ItemStack removeStack(ItemStack stack) {
+    public ItemStack removeStack(ItemStack stack, boolean simulate) {
         List<ItemTypes> remove = new ArrayList<>();
         int amount = 0;
         for (ItemTypes type : stored_items) {
             if (type.sameType(stack)) {
-                amount = type.extractStack(stack.getCount());
+                amount = type.extractStack(stack.getCount(), simulate);
+                if (!simulate) quantity -= amount;
                 if (type.amount <= 0) remove.add(type);
+                break;
             }
         }
         stored_items.removeAll(remove);
@@ -129,9 +131,9 @@ public class DriveSlot {
             if (sameType(stack)) amount += stack.getCount();
         }
 
-        private int extractStack(int size) {
-            int returnAmount = Math.min(Math.abs(size - amount), amount);
-            amount -= returnAmount;
+        private int extractStack(int size, boolean simulate) {
+            int returnAmount =  Math.min(amount, size);
+            if (!simulate) amount -= returnAmount;
             return returnAmount;
         }
 
@@ -157,7 +159,7 @@ public class DriveSlot {
                 }
                 if (!contained) typeList.add(type1);
             }
-            for (ItemTypes type : typeList) stackList.add(type.getStack());
+            for (ItemTypes type : typeList) stackList.add(type.getStack().copy());
             return stackList;
         }
 

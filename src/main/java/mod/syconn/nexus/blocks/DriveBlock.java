@@ -68,7 +68,7 @@ public class DriveBlock extends PipeAttachmentBlock {
 
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pMovedByPiston) {
         if (pLevel.getBlockEntity(pPos) instanceof DriveBE be) {
-            for (DriveSlot driveSlot : be.getDrive().getDriveSlots()) if (driveSlot != null) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), DriveHelper.getStorageDrive(driveSlot));
+            if (!pState.is(pNewState.getBlock())) for (DriveSlot driveSlot : be.getDrive().getDriveSlots()) if (driveSlot != null) Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), DriveHelper.getStorageDrive(driveSlot));
             pLevel.updateNeighbourForOutputSignal(pPos, pState.getBlock());
         }
         super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston);

@@ -2,13 +2,18 @@ package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.InterfaceBlock;
+import mod.syconn.nexus.client.screen.InterfaceScreen;
+import mod.syconn.nexus.network.Channel;
+import mod.syconn.nexus.network.packets.AddStack;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.capabilities.UncappedItemHandler;
+import mod.syconn.nexus.world.menu.InterfaceMenu;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -95,7 +100,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
                 markDirty();
             }
 
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            public ItemStack extractItem(int slot, int amount, boolean simulate) { // TODO REMOVING More then their
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
                     if (level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null) != null) {
@@ -104,7 +109,8 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
                         onContentsChanged(slot);
                     } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(0), null) != null) {
                         IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(0), null);
-                        ItemStack returnStack = handler.removeStack(stack);
+                        if (amount < stack.getCount()) amount = 32;
+                        ItemStack returnStack = handler.removeStack(stack.copyWithCount(Math.min(amount, 64)), simulate);
                         onContentsChanged(slot);
                         return returnStack;
                     }
@@ -131,6 +137,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
                             if (addStack.isEmpty()) break;
                         }
                     }
+                    Channel.sendToServer(new AddStack(addStack));
                 }
             }
 

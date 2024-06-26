@@ -62,7 +62,8 @@ public class DriveSlotHandler implements IDriveHandler, INBTSerializable<Compoun
         ItemStack returnStack = stack.copy();
         for (int i = 0; i < driveSlots.length; i++) {
             if (driveSlots[i] != null) {
-                returnStack.copyWithCount(returnStack.getCount() - driveSlots[i].addStack(stack).getCount());
+                int p = driveSlots[i].addStack(stack).getCount();
+                returnStack.setCount(returnStack.getCount() - p);
                 updateScreen();
                 if (returnStack.isEmpty()) return ItemStack.EMPTY;
             }
@@ -70,12 +71,13 @@ public class DriveSlotHandler implements IDriveHandler, INBTSerializable<Compoun
         return returnStack;
     }
 
-    public ItemStack removeStack(ItemStack stack) {
+    public ItemStack removeStack(ItemStack stack, boolean simulate) {
         ItemStack copy = stack.copy();
         int removed = 0;
         for (int i = 0; i < driveSlots.length; i++) {
             if (driveSlots[i] != null) {
-                removed += driveSlots[i].removeStack(stack).getCount();
+                removed += driveSlots[i].removeStack(stack, simulate).getCount();
+                updateScreen();
                 if (removed >= copy.getCount()) return copy;
             }
         }
@@ -84,6 +86,7 @@ public class DriveSlotHandler implements IDriveHandler, INBTSerializable<Compoun
 
     public void updateScreen() {
         drive.updateScreen();
+        drive.markDirty();
     }
 
     public CompoundTag serializeNBT() {

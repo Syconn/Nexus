@@ -36,28 +36,8 @@ public class DriveBE extends BasePipeBE {
         return flag;
     }
 
-//    private ItemStack extractStack(ItemStack stack, boolean simulate) { // TODO: simulate & NOT GONA WORK PROBABLY
-//        for (DriveSlot driveSlot : driveSlots) {
-//            if (driveSlot != null) {
-//                stack = driveSlot.removeStack(stack);
-//                if (stack.isEmpty()) return stack;
-//            }
-//        }
-//        return stack;
-//    }
-
-//    private ItemStack addStack(ItemStack stack, boolean simulate) { // TODO: simulate & NOT GONA WORK PROBABLY
-//        for (DriveSlot driveSlot : driveSlots) {
-//            if (driveSlot != null) {
-//                stack = driveSlot.addStack(stack);
-//                if (stack.isEmpty()) return ItemStack.EMPTY;
-//            }
-//        }
-//        return stack;
-//    }
-
     public void updateScreen() {
-        PipeNetworks.get((ServerLevel) level).updateAllPoints(level, getUUID(), true);
+        if (level instanceof ServerLevel sl) PipeNetworks.get(sl).updateAllPoints(level, getUUID(), true);
     }
 
     public DriveSlotHandler getDrive() {

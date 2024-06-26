@@ -1,6 +1,7 @@
 package mod.syconn.nexus.network;
 
 import mod.syconn.nexus.Nexus;
+import mod.syconn.nexus.network.packets.AddStack;
 import mod.syconn.nexus.network.packets.RefreshInterface;
 import mod.syconn.nexus.network.packets.ScrollInterface;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -15,6 +16,7 @@ public class Channel {
         final IPayloadRegistrar registrar = event.registrar(Nexus.MODID).versioned("1.0").optional();
         registrar.play(ScrollInterface.ID, ScrollInterface::create, handler -> handler.server(ScrollInterface::handle));
         registrar.play(RefreshInterface.ID, RefreshInterface::create, handler -> handler.server(RefreshInterface::handle));
+        registrar.play(AddStack.ID, AddStack::create, handler -> handler.server(AddStack::handle));
     }
 
     public static <MSG extends CustomPacketPayload> void sendToServer(MSG message) {

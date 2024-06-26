@@ -13,7 +13,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NexusBlock extends PipeAttachmentBlock {
+public class NexusBlock extends PipeAttachmentBlock { // TODO ON CLICK SCREEN THAT SHOWS ALL NETWORK BLOCKS
 
     public NexusBlock() {
         super(Blocks.IRON_BLOCK.properties());
