@@ -1,6 +1,8 @@
 package mod.syconn.nexus.world.savedata;
 
+import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.BasePipeBE;
+import mod.syconn.nexus.blockentities.NexusBE;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
 import net.minecraft.core.BlockPos;
@@ -32,6 +34,7 @@ public class PipeNetworks extends SavedData {
             for (Direction d : Direction.values()) if (level.getBlockEntity(pos.relative(d)) instanceof BasePipeBE be && be.canConnect(pos, d)
                     && temp.canConnect(pos.relative(d), d.getOpposite()) && be.getUUID() != null && !be.getUUID().equals(uuid)) uuid = conjoin(level, uuid, be.getUUID());
             setDirty();
+            for (BlockPos positions : getNexusBlocks(level, uuid)) level.getBlockEntity(positions, Registration.NEXUS_BE.get()).ifPresent(NexusBE::createBlockList);
             return uuid;
         }
         return ((BasePipeBE) level.getBlockEntity(pos)).getUUID();
@@ -77,6 +80,7 @@ public class PipeNetworks extends SavedData {
             }
             validLine(level, uuid);
             setDirty();
+            for (BlockPos positions : getNexusBlocks(level, uuid)) level.getBlockEntity(positions, Registration.NEXUS_BE.get()).ifPresent(NexusBE::createBlockList); //TODO NOT UPDATE NEXUS
         }
         return delete;
     }

@@ -32,8 +32,6 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
     public InterfaceScreen(InterfaceMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        imageWidth = 194;
-        imageHeight = 203;
     }
 
     protected void init() {
