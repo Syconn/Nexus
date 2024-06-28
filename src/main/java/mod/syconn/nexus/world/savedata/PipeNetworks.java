@@ -48,6 +48,7 @@ public class PipeNetworks extends SavedData {
         pipe_network.put(uuid, new PipeNetwork(uuid, positions));
         pipe_network.get(uuid).setStoragePoint(points);
         for (BlockPos pos : positions) if (level.getBlockEntity(pos) instanceof BasePipeBE be) be.setUUID(uuid);
+        for (BlockPos pos : getNexusBlocks(level, uuid)) level.getBlockEntity(pos, Registration.NEXUS_BE.get()).ifPresent(NexusBE::createBlockList);
         return uuid;
     }
 
@@ -80,7 +81,6 @@ public class PipeNetworks extends SavedData {
             }
             validLine(level, uuid);
             setDirty();
-            for (BlockPos positions : getNexusBlocks(level, uuid)) level.getBlockEntity(positions, Registration.NEXUS_BE.get()).ifPresent(NexusBE::createBlockList); //TODO NOT UPDATE NEXUS
         }
         return delete;
     }

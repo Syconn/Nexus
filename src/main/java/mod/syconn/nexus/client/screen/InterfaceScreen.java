@@ -23,15 +23,17 @@ import net.minecraft.world.item.ItemStack;
 
 import java.text.DecimalFormat;
 
-public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
+public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> { //TODO DO DISABLED SCROLLER FOR BOTH INTERFACES
 
     private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("container/creative_inventory/scroller");
     private static final ResourceLocation BACKGROUND = new ResourceLocation(Nexus.MODID, "textures/gui/interface.png");
     private float scrollOffs;
-    private boolean scrolling;
+    private boolean scrolling; // TODO BROKEN
 
     public InterfaceScreen(InterfaceMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
+        imageWidth = 195;
+        imageHeight = 204;
     }
 
     protected void init() {
