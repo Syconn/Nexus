@@ -29,12 +29,6 @@ public class DriveSlot {
             tag.getList("list", Tag.TAG_COMPOUND).forEach(nbt -> stored_items.add(new ItemTypes(((CompoundTag) nbt).getCompound("type"))));
     }
 
-    /**
-     * Add stack item stack.
-     *
-     * @param stack the stack
-     * @return the item stack and count added
-     */
     public ItemStack addStack(ItemStack stack) {
         if (quantity < max_quantity) {
             int toAdd = canAddUpTo(stack);
@@ -94,6 +88,14 @@ public class DriveSlot {
         return new ResourceLocation(Nexus.MODID, "textures/entity/drive_" + loc + ".png");
     }
 
+    public boolean isFull() {
+        return quantity >= max_quantity;
+    }
+
+    public boolean isEmpty() {
+        return quantity <= 0;
+    }
+
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("max", max_quantity);
@@ -132,14 +134,18 @@ public class DriveSlot {
         }
 
         private int extractStack(int size, boolean simulate) {
-            int returnAmount =  Math.min(amount, size);
-            if (!simulate) amount -= returnAmount;
+            int returnAmount = Math.min(amount, size);
+            if (!simulate) amount = Math.max(amount - returnAmount, 0);
             return returnAmount;
         }
 
         private ItemTypes addType(ItemTypes itemType) {
             if (sameType(itemType.id)) amount += itemType.amount;
             return this;
+        }
+
+        private ItemTypes copy() {
+            return new ItemTypes(id, amount);
         }
 
         public ItemStack getStack() {
@@ -154,10 +160,10 @@ public class DriveSlot {
                 for (int i = 0; i < typeList.size(); i++) {
                     if (type1.sameType(typeList.get(i).id)) {
                         contained = true;
-                        typeList.set(i, type1.addType(typeList.get(i)));
+                        typeList.set(i, typeList.get(i).addType(type1));
                     }
                 }
-                if (!contained) typeList.add(type1);
+                if (!contained) typeList.add(type1.copy());
             }
             for (ItemTypes type : typeList) stackList.add(type.getStack().copy());
             return stackList;

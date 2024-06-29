@@ -61,9 +61,9 @@ public class DriveSlotHandler implements IDriveHandler, INBTSerializable<Compoun
     public ItemStack addStack(ItemStack stack) {
         ItemStack returnStack = stack.copy();
         for (int i = 0; i < driveSlots.length; i++) {
-            if (driveSlots[i] != null) {
-                int p = driveSlots[i].addStack(stack).getCount();
-                returnStack.setCount(returnStack.getCount() - p);
+            if (driveSlots[i] != null && !driveSlots[i].isFull()) {
+                int p = driveSlots[i].addStack(returnStack).getCount();
+                returnStack.shrink(p);
                 updateScreen();
                 if (returnStack.isEmpty()) return ItemStack.EMPTY;
             }
@@ -73,15 +73,15 @@ public class DriveSlotHandler implements IDriveHandler, INBTSerializable<Compoun
 
     public ItemStack removeStack(ItemStack stack, boolean simulate) {
         ItemStack copy = stack.copy();
-        int removed = 0;
+        ItemStack returnStack = stack.copy();
         for (int i = 0; i < driveSlots.length; i++) {
-            if (driveSlots[i] != null) {
-                removed += driveSlots[i].removeStack(stack, simulate).getCount();
+            if (driveSlots[i] != null && !driveSlots[i].isEmpty()) {
+                returnStack.shrink(driveSlots[i].removeStack(returnStack, simulate).getCount());
                 updateScreen();
-                if (removed >= copy.getCount()) return copy;
+                if (returnStack.isEmpty()) return copy;
             }
         }
-        return copy.copyWithCount(removed);
+        return copy.copyWithCount(copy.getCount() - returnStack.getCount());
     }
 
     public void updateScreen() {

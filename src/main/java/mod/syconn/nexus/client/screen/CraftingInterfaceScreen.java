@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 public class CraftingInterfaceScreen extends AbstractContainerScreen<CraftingInterfaceMenu> {
 
     private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("container/creative_inventory/scroller");
+    private static final ResourceLocation SCROLLER_DISABLED_SPRITE = new ResourceLocation("container/stonecutter/scroller_disabled");
     private static final ResourceLocation BACKGROUND = new ResourceLocation(Nexus.MODID, "textures/gui/crafting_interface.png");
     private float scrollOffs;
     private boolean scrolling;
@@ -46,8 +47,11 @@ public class CraftingInterfaceScreen extends AbstractContainerScreen<CraftingInt
 
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        pGuiGraphics.blitSprite(SCROLLER_SPRITE, leftPos + 175, topPos + 18 + (int) (95 * scrollOffs), 12, 15);
-        if (Minecraft.getInstance().level.getBlockEntity(menu.getPos()) instanceof CraftingInterfaceBE be && !scrolling) scrollOffs = (float) (be.getLine() / (Math.ceil(be.getInvSize() / 9.0f) - 5));
+        if (Minecraft.getInstance().level.getBlockEntity(menu.getPos()) instanceof CraftingInterfaceBE be && !scrolling) {
+            scrollOffs = (float) (be.getLine() / (Math.ceil(be.getInvSize() / 9.0f) - 5));
+            if (Math.ceil(be.getInvSize() / 9.0f) > 5) pGuiGraphics.blitSprite(SCROLLER_SPRITE, leftPos + 175, topPos + 18 + (int) (95 * scrollOffs), 12, 15);
+            else pGuiGraphics.blitSprite(SCROLLER_DISABLED_SPRITE, leftPos + 175, topPos + 18, 12, 15);
+        }
     }
 
     protected void renderLabels(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {

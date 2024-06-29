@@ -115,7 +115,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 if (!this.moveItemStackTo(itemstack1, 46, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-                items.extractItem(index, 63, false);
+                items.extractItem(index, 64, false);
             } else if (!this.moveItemStackTo(itemstack1, 0, 46, false)) {
                 return ItemStack.EMPTY;
             }

@@ -18,7 +18,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class NexusBlock extends PipeAttachmentBlock { // TODO ON CLICK SCREEN THAT SHOWS ALL NETWORK BLOCKS
+public class NexusBlock extends PipeAttachmentBlock {
 
     public NexusBlock() {
         super(Blocks.IRON_BLOCK.properties());
@@ -27,11 +27,7 @@ public class NexusBlock extends PipeAttachmentBlock { // TODO ON CLICK SCREEN TH
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pHand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (!pLevel.isClientSide()) return InteractionResult.SUCCESS;
-
-        if (pLevel.getBlockEntity(pPos) instanceof NexusBE be) {
-             // TODO CREATES LIST AFTER FIRST CLICK - WORKS FOR ADD FIX FOR REMOVE
-            Minecraft.getInstance().setScreen(new NetworkManagerScreen(be.getBlocks()));
-        }
+        if (pLevel.getBlockEntity(pPos) instanceof NexusBE be) Minecraft.getInstance().setScreen(new NetworkManagerScreen(be.getBlocks()));
         return InteractionResult.FAIL;
     }
 
