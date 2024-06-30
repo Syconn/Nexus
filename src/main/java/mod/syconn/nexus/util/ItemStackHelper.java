@@ -25,6 +25,7 @@ public class ItemStackHelper {
     public static ItemStack canAddItemStack(ItemStack pStack, ServerLevel level, UUID uuid, boolean simulated) {
         PipeNetwork network = PipeNetworks.get(level).getPipeNetwork(uuid);
         ItemStack remainder = pStack.copy();
+        int addTotal = pStack.getCount();
         for (StoragePoint point : network.getStoragePoints()) {
             if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
                 IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
@@ -33,39 +34,37 @@ public class ItemStackHelper {
                 IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
                 if (!simulated) remainder = handler.addStack(remainder);
                 else {
-                    int addTotal = pStack.getCount();
                     for (DriveSlot driveSlot : handler.getDriveSlots()) {
                         if (driveSlot != null) {
                             addTotal -= driveSlot.canAddUpTo(pStack.copyWithCount(addTotal));
                             if (addTotal <= 0) return ItemStack.EMPTY;
                         }
                     }
-                    return remainder.copyWithCount(addTotal);
                 }
             }
         }
+        if (simulated) return remainder.copyWithCount(addTotal);
         return remainder;
     }
 
     public static boolean canAddItemStack(ItemStack pStack, ServerLevel level, UUID uuid) {
         PipeNetwork network = PipeNetworks.get(level).getPipeNetwork(uuid);
+        int addTotal = pStack.getCount();
         for (StoragePoint point : network.getStoragePoints()) {
             if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
 //                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
 //                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
             } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) {
                 IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
-                int addTotal = pStack.getCount();
                 for (DriveSlot driveSlot : handler.getDriveSlots()) {
                     if (driveSlot != null) {
                         addTotal -= driveSlot.canAddUpTo(pStack.copyWithCount(addTotal));
                         if (addTotal <= 0) return true;
                     }
                 }
-                return addTotal < pStack.getCount();
             }
         }
-        return false;
+        return addTotal < pStack.getCount();
     }
 
     public static List<ItemStack> combineItemsInStorage(IItemHandler handler, Item ignore) {

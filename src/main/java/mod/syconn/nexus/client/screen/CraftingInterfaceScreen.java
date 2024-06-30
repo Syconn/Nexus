@@ -47,10 +47,19 @@ public class CraftingInterfaceScreen extends AbstractContainerScreen<CraftingInt
 
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        this.renderTooltip(pGuiGraphics, pMouseX, pMouseY);
         if (Minecraft.getInstance().level.getBlockEntity(menu.getPos()) instanceof CraftingInterfaceBE be && !scrolling) {
             scrollOffs = (float) (be.getLine() / (Math.ceil(be.getInvSize() / 9.0f) - 5));
             if (Math.ceil(be.getInvSize() / 9.0f) > 5) pGuiGraphics.blitSprite(SCROLLER_SPRITE, leftPos + 175, topPos + 18 + (int) (95 * scrollOffs), 12, 15);
             else pGuiGraphics.blitSprite(SCROLLER_DISABLED_SPRITE, leftPos + 175, topPos + 18, 12, 15);
+        }
+    }
+
+    protected void renderTooltip(GuiGraphics pGuiGraphics, int pX, int pY) {
+        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+            ItemStack itemstack = this.hoveredSlot.getItem().copy();
+            itemstack.setHoverName(itemstack.getHoverName().copy().append(" x" + itemstack.getCount()).withStyle(itemstack.getHoverName().getStyle()));
+            pGuiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, pX, pY);
         }
     }
 

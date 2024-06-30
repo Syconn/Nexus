@@ -72,16 +72,15 @@ public class DriveSlotHandler implements IDriveHandler, INBTSerializable<Compoun
     }
 
     public ItemStack removeStack(ItemStack stack, boolean simulate) {
-        ItemStack copy = stack.copy();
         ItemStack returnStack = stack.copy();
         for (int i = 0; i < driveSlots.length; i++) {
             if (driveSlots[i] != null && !driveSlots[i].isEmpty()) {
                 returnStack.shrink(driveSlots[i].removeStack(returnStack, simulate).getCount());
                 updateScreen();
-                if (returnStack.isEmpty()) return copy;
+                if (returnStack.isEmpty()) return returnStack;
             }
         }
-        return copy.copyWithCount(copy.getCount() - returnStack.getCount());
+        return returnStack;
     }
 
     public void updateScreen() {

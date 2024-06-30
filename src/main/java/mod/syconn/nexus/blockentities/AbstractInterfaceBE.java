@@ -94,8 +94,8 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
         }
     }
 
-    protected UncappedItemHandler createItemHandler() { // TODO ADDING LESS THAN STACK TO LESS THAN STACK BROKEN
-        return new UncappedItemHandler(46) {
+    protected UncappedItemHandler createItemHandler() {
+        return new UncappedItemHandler(46) { // TODO NEW DRIVE BLOCK DOESNT COMMUNICATE WITH OLD INTERFACE
             protected void onContentsChanged(int slot) {
                 markDirty();
             }
@@ -103,16 +103,21 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
-                    if (level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null) != null) {
-                        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(0), null);
-                        ItemStackHelper.removeStack((IItemHandlerModifiable) handler, stack, simulate);
-                        onContentsChanged(slot);
-                    } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(0), null) != null) {
-                        IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(0), null);
-                        ItemStack returnStack = handler.removeStack(stack.copyWithCount(Math.min(amount, 64)), simulate);
-                        onContentsChanged(slot);
-                        return returnStack;
+                    amount = Math.min(amount, stack.getMaxStackSize());
+                    ItemStack returnStack = stack.copyWithCount(Math.min(amount, 64));
+                    for (int i = 0; i < registry.get(slot).size(); i++) {
+                        if (level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(i), null) != null) {
+                            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(i), null);
+                            ItemStackHelper.removeStack((IItemHandlerModifiable) handler, stack, simulate);
+                            onContentsChanged(slot);
+                        } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(i), null) != null) {
+                            IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(i), null);
+                            returnStack = handler.removeStack(returnStack, simulate);
+                            onContentsChanged(slot);
+                            if (returnStack.isEmpty()) return stack;
+                        }
                     }
+                    return stack.copyWithCount(Math.min(amount, 64) - returnStack.getCount());
                 }
                 return stack;
             }

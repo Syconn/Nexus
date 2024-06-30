@@ -28,7 +28,7 @@ public record AddStack(ItemStack stack) implements CustomPacketPayload {
     public void handle(PlayPayloadContext ctx) {
         ctx.workHandler().submitAsync(() -> {
             ctx.player().ifPresent(player -> {
-                player.addItem(stack);
+                player.getInventory().placeItemBackInInventory(stack);
             });
         });
     }

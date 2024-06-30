@@ -8,10 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
@@ -72,6 +69,11 @@ public class InterfaceMenu extends AbstractContainerMenu {
         return index;
     }
 
+    public void clicked(int pSlotId, int pButton, ClickType pClickType, Player pPlayer) {
+        if (pSlotId > 0 &&  pSlotId < 46 && pClickType == ClickType.PICKUP && this.slots.get(pSlotId).getItem().is(getCarried().getItem())) return;
+        super.clicked(pSlotId, pButton, pClickType, pPlayer);
+    }
+
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
@@ -79,12 +81,12 @@ public class InterfaceMenu extends AbstractContainerMenu {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
             if (index < 46) {
-                itemstack1 = itemstack.getCount() > itemstack.getMaxStackSize() ? itemstack1.copyWithCount(itemstack.getMaxStackSize()) : itemstack1.copy();
+                itemstack1 = itemstack1.copyWithCount(Math.min(itemstack.getMaxStackSize(), itemstack.getCount()));
                 itemstack = itemstack1.copy();
                 if (!this.moveItemStackTo(itemstack1, 46, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-                items.extractItem(index, 64, false);
+                items.extractItem(index, itemstack.getCount(), false);
             } else if (!this.moveItemStackTo(itemstack1, 0, 46, false)) {
                 return ItemStack.EMPTY;
             }

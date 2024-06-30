@@ -23,13 +23,13 @@ import net.minecraft.world.item.ItemStack;
 
 import java.text.DecimalFormat;
 
-public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> { //TODO DO DISABLED SCROLLER FOR BOTH INTERFACES
+public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> {
 
     private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("container/creative_inventory/scroller");
     private static final ResourceLocation SCROLLER_DISABLED_SPRITE = new ResourceLocation("container/stonecutter/scroller_disabled");
     private static final ResourceLocation BACKGROUND = new ResourceLocation(Nexus.MODID, "textures/gui/interface.png");
     private float scrollOffs;
-    private boolean scrolling; // TODO BROKEN
+    private boolean scrolling;
 
     public InterfaceScreen(InterfaceMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -47,10 +47,19 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> { //
 
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        this.renderTooltip(pGuiGraphics, pMouseX, pMouseY);
         if (Minecraft.getInstance().level.getBlockEntity(menu.getPos()) instanceof InterfaceBE be && !scrolling) {
             scrollOffs = (float) (be.getLine() / (Math.ceil(be.getInvSize() / 9.0f) - 5));
             if (Math.ceil(be.getInvSize() / 9.0f) > 5) pGuiGraphics.blitSprite(SCROLLER_SPRITE, leftPos + 175, topPos + 18 + (int) (95 * scrollOffs), 12, 15);
             else pGuiGraphics.blitSprite(SCROLLER_DISABLED_SPRITE, leftPos + 175, topPos + 18, 12, 15);
+        }
+    }
+
+    protected void renderTooltip(GuiGraphics pGuiGraphics, int pX, int pY) {
+        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+            ItemStack itemstack = this.hoveredSlot.getItem().copy();
+            itemstack.setHoverName(itemstack.getHoverName().copy().append(" x" + itemstack.getCount()).withStyle(itemstack.getHoverName().getStyle()));
+            pGuiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(itemstack), itemstack.getTooltipImage(), itemstack, pX, pY);
         }
     }
 
@@ -68,13 +77,9 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> { //
             boolean flag = false;
             boolean flag1 = pSlot == this.clickedSlot && !this.draggingItem.isEmpty() && !this.isSplittingStack;
             ItemStack itemstack1 = this.menu.getCarried();
-            if (pSlot == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !itemstack.isEmpty()) {
-                itemstack = itemstack.copyWithCount(itemstack.getCount() / 2);
-            } else if (this.isQuickCrafting && this.quickCraftSlots.contains(pSlot) && !itemstack1.isEmpty()) {
-                if (this.quickCraftSlots.size() == 1) {
-                    return;
-                }
-
+            if (pSlot == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !itemstack.isEmpty()) itemstack = itemstack.copyWithCount(itemstack.getCount() / 2);
+            else if (this.isQuickCrafting && this.quickCraftSlots.contains(pSlot) && !itemstack1.isEmpty()) {
+                if (this.quickCraftSlots.size() == 1) return;
                 if (AbstractContainerMenu.canItemQuickReplace(pSlot, itemstack1, true) && this.menu.canDragTo(pSlot)) {
                     flag = true;
                     int k = Math.min(itemstack1.getMaxStackSize(), pSlot.getMaxStackSize(itemstack1));
@@ -84,14 +89,13 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> { //
                         i1 = k;
                         amount = ChatFormatting.YELLOW.toString() + k;
                     }
-
                     itemstack = itemstack1.copyWithCount(i1);
                 } else {
                     this.quickCraftSlots.remove(pSlot);
                     this.recalculateQuickCraftRemaining();
                 }
             }
-            if (amount.equals("")) {
+            if (amount.isEmpty()) {
                 if (value > 1) {
                     String[] arr = {"", "k", "m", "b", "t"};
                     int index = 0;
@@ -115,17 +119,10 @@ public class InterfaceScreen extends AbstractContainerScreen<InterfaceMenu> { //
                 }
             }
             if (!flag1) {
-                if (flag) {
-                    pGuiGraphics.fill(i, j, i + 16, j + 16, -2130706433);
-                }
-
+                if (flag) pGuiGraphics.fill(i, j, i + 16, j + 16, -2130706433);
                 int j1 = pSlot.x + pSlot.y * this.imageWidth;
-                if (pSlot.isFake()) {
-                    pGuiGraphics.renderFakeItem(itemstack, i, j, j1);
-                } else {
-                    pGuiGraphics.renderItem(itemstack, i, j, j1);
-                }
-
+                if (pSlot.isFake()) pGuiGraphics.renderFakeItem(itemstack, i, j, j1);
+                else pGuiGraphics.renderItem(itemstack, i, j, j1);
                 pGuiGraphics.renderItemDecorations(this.font, itemstack, i, j, amount);
             }
             pGuiGraphics.pose().popPose();

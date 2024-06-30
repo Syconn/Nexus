@@ -6,6 +6,7 @@ import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
+import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
@@ -24,7 +25,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import org.jetbrains.annotations.NotNull;
 
 public class CraftingInterfaceMenu extends AbstractContainerMenu {
 
@@ -58,7 +58,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 this.addSlot(new Slot(this.craftSlots, j + i * 3, 196 + j * 18, 54 + i * 18));
             }
         }
-        this.addSlot(new ResultSlot(player, this.craftSlots, this.resultSlots, 0, 214, 154));
+        addSlot(new ResultSlot(player, this.craftSlots, this.resultSlots, 0, 214, 154));
         layoutPlayerInventorySlots(player.getInventory(), 9, 122);
     }
 
@@ -66,10 +66,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
         super.slotsChanged(pContainer);
         if (!level.isClientSide) {
             ServerPlayer serverplayer = (ServerPlayer)player;
-            ItemStack itemstack = ItemStack.EMPTY;
-            itemstack = CrafterBlock.getPotentialResults(level, this.craftSlots)
-                    .map(p_307367_ -> p_307367_.assemble(this.craftSlots, level.registryAccess()))
-                    .orElse(ItemStack.EMPTY);
+            ItemStack itemstack = CrafterBlock.getPotentialResults(level, this.craftSlots).map(p_307367_ -> p_307367_.assemble(this.craftSlots, level.registryAccess()).copy()).orElse(ItemStack.EMPTY).copy();
             resultSlots.setItem(0, itemstack);
             setRemoteSlot(0, itemstack);
             serverplayer.connection.send(new ClientboundContainerSetSlotPacket(containerId, incrementStateId(), 0, itemstack));
@@ -103,19 +100,28 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
         return index;
     }
 
+    public void clicked(int pSlotId, int pButton, ClickType pClickType, Player pPlayer) {
+        if (pSlotId > 0 && pSlotId < 46 && pClickType == ClickType.PICKUP && this.slots.get(pSlotId).getItem().is(getCarried().getItem())) return;
+        super.clicked(pSlotId, pButton, pClickType, pPlayer);
+    }
+
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot.hasItem()) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
-            if (index < 46) {
-                itemstack1 = itemstack.getCount() > itemstack.getMaxStackSize() ? itemstack1.copyWithCount(itemstack.getMaxStackSize()) : itemstack1.copy();
+            if (index < 46 || index == 55) {
+                itemstack1 = itemstack1.copyWithCount(Math.min(itemstack.getMaxStackSize(), itemstack.getCount()));
                 itemstack = itemstack1.copy();
                 if (!this.moveItemStackTo(itemstack1, 46, this.slots.size(), true)) {
                     return ItemStack.EMPTY;
                 }
-                items.extractItem(index, 64, false);
+                if (index < 46) items.extractItem(index, itemstack.getCount(), false);
+                else {
+                    slot.onTake(player, itemstack);
+                    slotsChanged(craftSlots);
+                }
             } else if (!this.moveItemStackTo(itemstack1, 0, 46, false)) {
                 return ItemStack.EMPTY;
             }
@@ -181,7 +187,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
         clearContainer(pPlayer, craftSlots);
     }
 
-    protected void clearContainer(Player pPlayer, Container pContainer) {
+    protected void clearContainer(Player pPlayer, Container pContainer) { // TODO TEST OLD SYSTEM TO MAKE SURE ACTUALLY FIXED
         if (!pPlayer.isAlive() || pPlayer instanceof ServerPlayer && ((ServerPlayer) pPlayer).hasDisconnected()) {
             for (int j = 0; j < pContainer.getContainerSize(); ++j) {
                 pPlayer.drop(pContainer.removeItemNoUpdate(j), false);
@@ -191,15 +197,18 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 PipeNetwork network = PipeNetworks.get((ServerLevel) level).getPipeNetwork(be.getUUID());
                 ItemStack stack = pContainer.removeItemNoUpdate(i);
                 for (StoragePoint point : network.getStoragePoints()) {
-                    IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                    ItemStack stack2 = ItemHandlerHelper.insertItemStacked(handler, stack, false);
-                    if (stack2.isEmpty()) break;
+                    if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
+                        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                        stack = ItemHandlerHelper.insertItemStacked(handler, stack, false);
+                    } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) {
+                        IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
+                        stack = handler.addStack(stack);
+                    }
+                    if (stack.isEmpty()) break;
                 }
-            }
-            for (int i = 0; i < pContainer.getContainerSize(); ++i) {
                 Inventory inventory = pPlayer.getInventory();
                 if (inventory.player instanceof ServerPlayer) {
-                    inventory.placeItemBackInInventory(pContainer.removeItemNoUpdate(i));
+                    inventory.placeItemBackInInventory(stack);
                 }
             }
         }
