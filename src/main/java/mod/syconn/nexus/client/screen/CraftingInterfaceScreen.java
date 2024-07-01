@@ -7,7 +7,6 @@ import mod.syconn.nexus.network.Channel;
 import mod.syconn.nexus.network.packets.RefreshInterface;
 import mod.syconn.nexus.network.packets.ScrollInterface;
 import mod.syconn.nexus.world.menu.CraftingInterfaceMenu;
-import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

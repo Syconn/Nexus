@@ -1,12 +1,10 @@
 package mod.syconn.nexus.blocks;
 
-import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.BasePipeBE;
 import mod.syconn.nexus.blockentities.ExternalStorageBE;
 import mod.syconn.nexus.util.ConnectionType;
 import mod.syconn.nexus.util.CustomRender;
-import mod.syconn.nexus.util.PipePatterns;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +35,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-import static mod.syconn.nexus.util.ConnectionType.*;
+import static mod.syconn.nexus.util.ConnectionType.CABLE;
+import static mod.syconn.nexus.util.ConnectionType.NONE;
 
 public class ExternalStorage extends PipeAttachmentBlock implements CustomRender {
 

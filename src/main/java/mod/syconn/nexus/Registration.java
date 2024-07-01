@@ -31,7 +31,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 import static mod.syconn.nexus.Nexus.MODID;

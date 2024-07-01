@@ -1,8 +1,6 @@
 package mod.syconn.nexus.client.model;
 
 import mod.syconn.nexus.Nexus;
-import mod.syconn.nexus.Registration;
-import mod.syconn.nexus.blocks.ExternalStorage;
 import mod.syconn.nexus.blocks.PipeAttachmentBlock;
 import mod.syconn.nexus.util.ConnectionType;
 import mod.syconn.nexus.util.CustomRender;
@@ -12,7 +10,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.block.model.MultiVariant;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -26,7 +23,6 @@ import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

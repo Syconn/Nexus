@@ -7,7 +7,6 @@ import mod.syconn.nexus.util.data.StoragePoint;
 import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;

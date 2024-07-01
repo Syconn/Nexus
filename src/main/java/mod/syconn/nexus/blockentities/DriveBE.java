@@ -2,7 +2,6 @@ package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.DriveBlock;
-import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.world.capabilities.DriveSlotHandler;
 import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.savedata.PipeNetworks;

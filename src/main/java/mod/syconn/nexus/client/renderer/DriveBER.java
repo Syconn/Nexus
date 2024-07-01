@@ -1,9 +1,7 @@
 package mod.syconn.nexus.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import mod.syconn.nexus.Nexus;
 import mod.syconn.nexus.blockentities.DriveBE;
 import mod.syconn.nexus.blocks.DriveBlock;
 import mod.syconn.nexus.client.model.DriveModel;
@@ -15,7 +13,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 
 public class DriveBER implements BlockEntityRenderer<DriveBE> {
 

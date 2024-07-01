@@ -1,10 +1,6 @@
 package mod.syconn.nexus.client.screen;
 
 import mod.syconn.nexus.Nexus;
-import mod.syconn.nexus.blockentities.InterfaceBE;
-import mod.syconn.nexus.blocks.ExternalStorage;
-import mod.syconn.nexus.network.Channel;
-import mod.syconn.nexus.network.packets.ScrollInterface;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
