@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class StorageDrive extends Item {
+public class StorageDrive extends Item { // TODO SHOW ITEMS IN SHIFT MENU LIKE BUNDLE ITEM
 
     public StorageDrive(Properties properties) {
         super(properties);

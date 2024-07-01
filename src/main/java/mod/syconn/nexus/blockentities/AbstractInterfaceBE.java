@@ -95,7 +95,7 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
     }
 
     protected UncappedItemHandler createItemHandler() {
-        return new UncappedItemHandler(46) { // TODO NEW DRIVE BLOCK DOESNT COMMUNICATE WITH OLD INTERFACE
+        return new UncappedItemHandler(46) {
             protected void onContentsChanged(int slot) {
                 markDirty();
             }
@@ -104,22 +104,21 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
                 ItemStack stack = super.extractItem(slot, amount, simulate);
                 if (registry.containsKey(slot)) {
                     amount = Math.min(amount, stack.getMaxStackSize());
-                    ItemStack returnStack = stack.copyWithCount(Math.min(amount, 64));
+                    ItemStack returnStack = stack.copyWithCount(amount);
                     for (int i = 0; i < registry.get(slot).size(); i++) {
                         if (level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(i), null) != null) {
                             IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, registry.get(slot).get(i), null);
-                            ItemStackHelper.removeStack((IItemHandlerModifiable) handler, stack, simulate);
-                            onContentsChanged(slot);
+                            returnStack = ItemStackHelper.removeStack(handler, returnStack, simulate);
                         } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(i), null) != null) {
                             IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, registry.get(slot).get(i), null);
                             returnStack = handler.removeStack(returnStack, simulate);
-                            onContentsChanged(slot);
-                            if (returnStack.isEmpty()) return stack;
                         }
+                        onContentsChanged(slot);
+                        if (returnStack.isEmpty()) return stack.copy();
                     }
-                    return stack.copyWithCount(Math.min(amount, 64) - returnStack.getCount());
+                    return stack.copyWithCount(amount - returnStack.getCount());
                 }
-                return stack;
+                return stack.copy();
             }
 
             public void setStackInSlot(int slot, @NotNull ItemStack stack) {

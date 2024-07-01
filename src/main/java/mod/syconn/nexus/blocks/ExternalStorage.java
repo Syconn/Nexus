@@ -60,10 +60,10 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
         };
     }
 
-    protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos thisPos, Direction facing) { // TODO LOOK AT THIS
-//        if (state.getValue(FACING).getOpposite() == facing) return CABLE;
-//        else if (world.getBlockEntity(thisPos.relative(facing)) != null &&
-//                world.getBlockEntity(thisPos.relative(facing)).getLevel().getCapability(Capabilities.ItemHandler.BLOCK, thisPos.relative(facing), null) != null) return NONE;
+    protected ConnectionType getConnectorType(BlockState state, BlockGetter world, BlockPos thisPos, Direction facing) {
+        if (state.getValue(FACING).getOpposite() == facing) return CABLE;
+        else if (world.getBlockEntity(thisPos.relative(facing)) != null &&
+                world.getBlockEntity(thisPos.relative(facing)).getLevel().getCapability(Capabilities.ItemHandler.BLOCK, thisPos.relative(facing), null) != null) return NONE;
         return super.getConnectorType(state, world, thisPos, facing);
     }
 
@@ -80,7 +80,7 @@ public class ExternalStorage extends PipeAttachmentBlock implements CustomRender
         }
     }
 
-    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) { //TODO MAY BE WHY EXTRA STORAGE POINTS
+    public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
         BlockPos blockpos = pPos.relative(pState.getValue(FACING).getOpposite());
         return pLevel.getBlockEntity(blockpos) != null && pLevel.getBlockEntity(blockpos).getLevel().getCapability(Capabilities.ItemHandler.BLOCK, blockpos, pState.getValue(FACING).getOpposite()) != null;
     }

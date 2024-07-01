@@ -187,7 +187,7 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
         clearContainer(pPlayer, craftSlots);
     }
 
-    protected void clearContainer(Player pPlayer, Container pContainer) { // TODO TEST OLD SYSTEM TO MAKE SURE ACTUALLY FIXED
+    protected void clearContainer(Player pPlayer, Container pContainer) {
         if (!pPlayer.isAlive() || pPlayer instanceof ServerPlayer && ((ServerPlayer) pPlayer).hasDisconnected()) {
             for (int j = 0; j < pContainer.getContainerSize(); ++j) {
                 pPlayer.drop(pContainer.removeItemNoUpdate(j), false);

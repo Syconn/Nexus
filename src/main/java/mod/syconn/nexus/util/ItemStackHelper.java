@@ -7,11 +7,11 @@ import mod.syconn.nexus.util.data.StoragePoint;
 import mod.syconn.nexus.world.capabilities.IDriveHandler;
 import mod.syconn.nexus.world.savedata.PipeNetworks;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.ArrayList;
@@ -29,7 +29,8 @@ public class ItemStackHelper {
         for (StoragePoint point : network.getStoragePoints()) {
             if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
                 IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, simulated);
+                addTotal = remainder.getCount();
             } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) {
                 IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
                 if (!simulated) remainder = handler.addStack(remainder);
@@ -52,8 +53,12 @@ public class ItemStackHelper {
         int addTotal = pStack.getCount();
         for (StoragePoint point : network.getStoragePoints()) {
             if (level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null) != null) {
-//                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
-//                remainder = ItemHandlerHelper.insertItemStacked(handler, remainder, true);
+                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, point.getInventoryPos(), null);
+                ItemStack insertStack = pStack.copy();
+                for (int i = 0; i < handler.getSlots(); i++) {
+                    insertStack = handler.insertItem(i, insertStack, true);
+                    if (insertStack.getCount() < pStack.getCount()) return true;
+                }
             } else if (level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null) != null) {
                 IDriveHandler handler = level.getCapability(Registration.DRIVE_HANDLER_BLOCK, point.getInventoryPos(), null);
                 for (DriveSlot driveSlot : handler.getDriveSlots()) {
@@ -85,25 +90,12 @@ public class ItemStackHelper {
         return stacks;
     }
 
-    public static ItemStack removeStack(IItemHandlerModifiable dest, ItemStack stack, boolean simulate) {
-        if (dest == null || stack.isEmpty())
-            return ItemStack.EMPTY;
-        for (int i = 0; i < dest.getSlots(); i++) {
-            ItemStack stack2 = dest.getStackInSlot(i).copy();
-            if (canItemStacksStack(stack.copy(), stack2)) {
-                int extract = Math.min(stack.getCount(), stack2.getMaxStackSize());
-                if (stack2.getCount() <= extract) {
-                    if (!simulate) {
-                        dest.setStackInSlot(i, ItemStack.EMPTY);
-                        return stack2;
-                    }
-                    else return stack2.copy();
-                } else {
-                    dest.setStackInSlot(i, ItemHandlerHelper.copyStackWithSize(stack2, stack2.getCount() - extract));
-                    return ItemHandlerHelper.copyStackWithSize(stack2, extract);
-                }
-            }
+    public static ItemStack removeStack(IItemHandler handler, ItemStack pStack, boolean simulate) {
+        ItemStack returnStack = pStack.copy();
+        for (int i = 0; i < handler.getSlots(); i++) {
+            if (canItemStacksStack(returnStack, handler.getStackInSlot(i))) returnStack.shrink(handler.extractItem(i, pStack.getCount(), simulate).getCount());
+            if (returnStack.isEmpty()) return ItemStack.EMPTY;
         }
-        return ItemStack.EMPTY;
+        return pStack.copyWithCount(pStack.getCount() - returnStack.getCount());
     }
 }
