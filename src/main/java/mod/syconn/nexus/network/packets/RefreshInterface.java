@@ -16,12 +16,10 @@ public record RefreshInterface(BlockPos pos) implements CustomPacketPayload {
         return new RefreshInterface(buf.readBlockPos());
     }
 
-    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
     }
 
-    @Override
     public ResourceLocation id() {
         return ID;
     }

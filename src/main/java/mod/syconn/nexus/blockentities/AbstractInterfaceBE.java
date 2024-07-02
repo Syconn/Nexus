@@ -2,8 +2,6 @@ package mod.syconn.nexus.blockentities;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blocks.InterfaceBlock;
-import mod.syconn.nexus.network.Channel;
-import mod.syconn.nexus.network.packets.AddStack;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.NBTHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
@@ -136,7 +134,6 @@ public abstract class AbstractInterfaceBE extends BasePipeBE {
                             if (addStack.isEmpty()) break;
                         }
                     }
-                    Channel.sendToServer(new AddStack(addStack));
                 }
             }
 

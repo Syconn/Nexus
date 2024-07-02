@@ -2,6 +2,7 @@ package mod.syconn.nexus.world.menu;
 
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
+import mod.syconn.nexus.client.ClientHooks;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.world.menu.slots.HiddenItemHandlerSlot;
 import net.minecraft.core.BlockPos;
@@ -11,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
@@ -131,7 +134,10 @@ public class InterfaceMenu extends AbstractContainerMenu {
                 ItemStack itemstack1 = slot1.getItem();
                 if (itemstack1.isEmpty() && slot1.mayPlace(pStack)) {
                     if (pStack.getCount() > slot1.getMaxStackSize()) slot1.setByPlayer(pStack.split(slot1.getMaxStackSize()));
-                    else slot1.setByPlayer(pStack.split(pStack.getCount()));
+                    else {
+                        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHooks.addStackToPlayer(pStack, pos));
+                        slot1.setByPlayer(pStack.split(pStack.getCount()));
+                    }
                     slot1.setChanged();
                     flag = true;
                     break;

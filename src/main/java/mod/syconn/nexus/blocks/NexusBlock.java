@@ -1,8 +1,7 @@
 package mod.syconn.nexus.blocks;
 
 import mod.syconn.nexus.blockentities.NexusBE;
-import mod.syconn.nexus.client.screen.NetworkManagerScreen;
-import net.minecraft.client.Minecraft;
+import mod.syconn.nexus.client.ClientHooks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -16,6 +15,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
 import org.jetbrains.annotations.NotNull;
 
 public class NexusBlock extends PipeAttachmentBlock {
@@ -27,7 +28,10 @@ public class NexusBlock extends PipeAttachmentBlock {
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pHand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (!pLevel.isClientSide()) return InteractionResult.SUCCESS;
-        if (pLevel.getBlockEntity(pPos) instanceof NexusBE be) Minecraft.getInstance().setScreen(new NetworkManagerScreen(be.getBlocks()));
+        if (pLevel.getBlockEntity(pPos) instanceof NexusBE be) {
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHooks.open(be.getBlocks()));
+            return InteractionResult.SUCCESS;
+        }
         return InteractionResult.FAIL;
     }
 

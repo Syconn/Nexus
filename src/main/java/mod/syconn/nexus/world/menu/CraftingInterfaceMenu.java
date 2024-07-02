@@ -3,6 +3,7 @@ package mod.syconn.nexus.world.menu;
 import mod.syconn.nexus.Registration;
 import mod.syconn.nexus.blockentities.AbstractInterfaceBE;
 import mod.syconn.nexus.blockentities.CraftingInterfaceBE;
+import mod.syconn.nexus.client.ClientHooks;
 import mod.syconn.nexus.util.ItemStackHelper;
 import mod.syconn.nexus.util.data.PipeNetwork;
 import mod.syconn.nexus.util.data.StoragePoint;
@@ -20,12 +21,15 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CrafterBlock;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
+@SuppressWarnings("removal")
 public class CraftingInterfaceMenu extends AbstractContainerMenu {
 
     protected final BlockPos pos;
@@ -122,7 +126,8 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                     slot.onTake(player, itemstack);
                     slotsChanged(craftSlots);
                 }
-            } else if (!this.moveItemStackTo(itemstack1, 0, 46, false)) {
+            }
+            else if (!this.moveItemStackTo(itemstack1, 0, 46, false)) {
                 return ItemStack.EMPTY;
             }
             if (itemstack1.isEmpty()) {
@@ -166,7 +171,10 @@ public class CraftingInterfaceMenu extends AbstractContainerMenu {
                 ItemStack itemstack1 = slot1.getItem();
                 if (itemstack1.isEmpty() && slot1.mayPlace(pStack)) {
                     if (pStack.getCount() > slot1.getMaxStackSize()) slot1.setByPlayer(pStack.split(slot1.getMaxStackSize()));
-                    else slot1.setByPlayer(pStack.split(pStack.getCount()));
+                    else {
+                        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHooks.addStackToPlayer(pStack, pos));
+                        slot1.setByPlayer(pStack.split(pStack.getCount()));
+                    }
                     slot1.setChanged();
                     flag = true;
                     break;
