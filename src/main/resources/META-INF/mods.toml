@@ -4,9 +4,10 @@ license="${mod_license}"
 [[mods]]
 modId="nexus"
 displayName="Nexus"
-version="0.1.0"
+version="${mod_version}"
 logoFile="logo.png"
 authors="Syconn"
+updateJSONURL="https://raw.githubusercontent.com/Syconn/Nexus/master/updates.json"
 
 description='''${mod_description}'''
 [[dependencies.nexus]]
