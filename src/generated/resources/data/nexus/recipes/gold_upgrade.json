@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "n": {
+      "item": "minecraft:gold_ingot"
+    },
+    "r": {
+      "item": "nexus:iron_upgrade"
+    }
+  },
+  "pattern": [
+    " n ",
+    "nrn",
+    " n "
+  ],
+  "result": {
+    "item": "nexus:gold_upgrade"
+  }
+}

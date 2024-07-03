@@ -3,8 +3,10 @@ package mod.syconn.nexus;
 import mod.syconn.nexus.blockentities.*;
 import mod.syconn.nexus.blocks.*;
 import mod.syconn.nexus.items.StorageDrive;
+import mod.syconn.nexus.items.UpgradeItem;
 import mod.syconn.nexus.util.DriveHelper;
 import mod.syconn.nexus.world.capabilities.IDriveHandler;
+import mod.syconn.nexus.world.crafting.StorageDriveRecipe;
 import mod.syconn.nexus.world.menu.CraftingInterfaceMenu;
 import mod.syconn.nexus.world.menu.InterfaceMenu;
 import net.minecraft.core.Direction;
@@ -18,6 +20,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -42,6 +46,7 @@ public class Registration {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID);
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(BuiltInRegistries.MENU, MODID);
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, Nexus.MODID);
 
     public static final DeferredBlock<Block> NEXUS = BLOCKS.register("nexus", NexusBlock::new);
     public static final DeferredBlock<Block> ITEM_PIPE = BLOCKS.register("item_pipe", ItemPipe::new);
@@ -57,8 +62,12 @@ public class Registration {
     public static final DeferredItem<BlockItem> CRAFTING_INTERFACE_ITEM = ITEMS.registerSimpleBlockItem("crafting_interface", CRAFTING_INTERFACE);
     public static final DeferredItem<BlockItem> EXTERNAL_STORAGE_ITEM = ITEMS.registerSimpleBlockItem("external_storage", EXTERNAL_STORAGE);
     public static final DeferredItem<BlockItem> DRIVE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("drive", DRIVE);
-
     public static final DeferredItem<StorageDrive> STORAGE_DRIVE = ITEMS.registerItem("storage_drive", StorageDrive::new, new Item.Properties().stacksTo(1));
+    public static final DeferredItem<UpgradeItem> IRON_UPGRADE = ITEMS.register("iron_upgrade", () -> new UpgradeItem(new Item.Properties().stacksTo(1), 2));
+    public static final DeferredItem<UpgradeItem> GOLD_UPGRADE = ITEMS.register("gold_upgrade", () -> new UpgradeItem(new Item.Properties().stacksTo(1), 5));
+    public static final DeferredItem<UpgradeItem> DIAMOND_UPGRADE = ITEMS.register("diamond_upgrade", () -> new UpgradeItem(new Item.Properties().stacksTo(1), 10));
+    public static final DeferredItem<UpgradeItem> EMERALD_UPGRADE = ITEMS.register("emerald_upgrade", () -> new UpgradeItem(new Item.Properties().stacksTo(1), 15));
+    public static final DeferredItem<UpgradeItem> NETHERITE_UPGRADE = ITEMS.register("netherite_upgrade", () -> new UpgradeItem(new Item.Properties().stacksTo(1).fireResistant(), 25));
 
     public static final Supplier<BlockEntityType<ItemPipeBE>> ITEM_PIPE_BE = BLOCK_ENTITIES.register("item_pipe", () -> BlockEntityType.Builder.of(ItemPipeBE::new, ITEM_PIPE.get()).build(null));
     public static final Supplier<BlockEntityType<ExternalStorageBE>> EXTERNAL_STORAGE_BE = BLOCK_ENTITIES.register("external_storage", () -> BlockEntityType.Builder.of(ExternalStorageBE::new, EXTERNAL_STORAGE.get()).build(null));
@@ -80,14 +89,18 @@ public class Registration {
 
     public static final BlockCapability<IDriveHandler, Direction> DRIVE_HANDLER_BLOCK = BlockCapability.create(new ResourceLocation(MODID, "drive_handler"), IDriveHandler.class, Direction.class);
 
+    public static final Supplier<SimpleCraftingRecipeSerializer<StorageDriveRecipe>> STORAGE_DRIVE_SERIALIZER = RECIPE_SERIALIZERS.register("storage_drive_serializers", () -> new SimpleCraftingRecipeSerializer<>(StorageDriveRecipe::new));
+
     public static void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == NEXUS_TAB.getKey()) {
             ITEMS.getEntries().forEach(i -> {
                 if (!(i.get() instanceof StorageDrive)) event.accept(i.get());
             });
-            event.accept(DriveHelper.createStorageDrive(6400));
-            event.accept(DriveHelper.createStorageDrive(16000));
-            event.accept(DriveHelper.createStorageDrive(64000));
+            event.accept(DriveHelper.createDrive(320));
+            event.accept(DriveHelper.createDrive(640));
+            event.accept(DriveHelper.createDrive(6400));
+            event.accept(DriveHelper.createDrive(16000));
+            event.accept(DriveHelper.createDrive(64000));
         }
     }
 

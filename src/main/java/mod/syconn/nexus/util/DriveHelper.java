@@ -10,14 +10,14 @@ import java.util.Map;
 
 public class DriveHelper {
 
-    public static ItemStack createStorageDrive(int storage) {
+    public static ItemStack createDrive(int storage) {
         ItemStack stack = new ItemStack(Registration.STORAGE_DRIVE.get());
         stack.getOrCreateTag().put("data", new DriveSlot(storage).save());
         return stack;
     }
 
     public static ItemStack getStorageDrive(DriveSlot slot) {
-        ItemStack stack = createStorageDrive(slot.getMaxQuantity());
+        ItemStack stack = createDrive(slot.getMaxQuantity());
         stack.getOrCreateTag().put("data", slot.save());
         return stack;
     }
