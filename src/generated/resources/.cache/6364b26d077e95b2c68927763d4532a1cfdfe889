@@ -1,4 +1,9 @@
-// 1.20.4	2024-05-23T22:19:29.6186846	vanilla/Item Models: nexus
+// 1.20.4	2024-07-02T20:24:14.0890448	vanilla/Item Models: nexus
+5c6646ce0dac291ec1a9ae9f13a45deeacf44fd0 assets/nexus/models/item/diamond_upgrade.json
 dff05e6d40f1184251268b66a6dae9038b70bdb7 assets/nexus/models/item/drive_item_red.json
 7b42c0586e05bb434aedb1e77d9647260211db48 assets/nexus/models/item/drive_item_yellow.json
+b4593016949f96abcd8eba88a23a78809245f7cc assets/nexus/models/item/emerald_upgrade.json
+caed184794263ee3542a34eee1d0bf8842fa6ae2 assets/nexus/models/item/gold_upgrade.json
+097ee923b5d4e03160384ab92fea222a321067f8 assets/nexus/models/item/iron_upgrade.json
+0d31210972ca4e7624d3ade712abea97126e676c assets/nexus/models/item/netherite_upgrade.json
 d32c60dd4035a16f519af2d55f6abf25e4be979a assets/nexus/models/item/storage_drive.json

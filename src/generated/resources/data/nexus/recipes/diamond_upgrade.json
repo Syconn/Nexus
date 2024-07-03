@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "n": {
+      "item": "minecraft:diamond"
+    },
+    "r": {
+      "item": "nexus:gold_upgrade"
+    }
+  },
+  "pattern": [
+    " n ",
+    "nrn",
+    " n "
+  ],
+  "result": {
+    "item": "nexus:diamond_upgrade"
+  }
+}

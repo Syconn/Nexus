@@ -10,12 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public record AddStack(ItemStack stack, BlockPos pos) implements CustomPacketPayload {
 
-    private static final Logger log = LoggerFactory.getLogger(AddStack.class);
     public static ResourceLocation ID = new ResourceLocation(Nexus.MODID, "add_stack");
 
     public static AddStack create(FriendlyByteBuf buf) {

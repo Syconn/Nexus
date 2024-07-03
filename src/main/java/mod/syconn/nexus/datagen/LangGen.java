@@ -21,6 +21,11 @@ public class LangGen extends LanguageProvider {
         this.addBlock(Registration.EXTERNAL_STORAGE, "External Storage");
         this.addBlock(Registration.DRIVE, "Drive Block");
         this.addItem(Registration.STORAGE_DRIVE, "Storage Drive");
+        this.addItem(Registration.DIAMOND_UPGRADE, "Diamond Upgrade");
+        this.addItem(Registration.GOLD_UPGRADE, "Gold Upgrade");
+        this.addItem(Registration.IRON_UPGRADE, "Iron Upgrade");
+        this.addItem(Registration.EMERALD_UPGRADE, "Emerald Upgrade");
+        this.addItem(Registration.NETHERITE_UPGRADE, "Netherite Upgrade");
         this.add("itemGroup." + MODID, "Nexus");
     }
 }
