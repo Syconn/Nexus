@@ -22,6 +22,7 @@ public class Nexus {
 
         Registration.BLOCKS.register(modEventBus);
         Registration.ITEMS.register(modEventBus);
+        Registration.RECIPE_SERIALIZERS.register(modEventBus);
         Registration.BLOCK_ENTITIES.register(modEventBus);
         Registration.MENUS.register(modEventBus);
         Registration.TABS.register(modEventBus);

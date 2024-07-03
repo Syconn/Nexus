@@ -5,6 +5,11 @@
   "block.nexus.interface": "Interface",
   "block.nexus.item_pipe": "Item Pipe",
   "block.nexus.nexus": "Nexus",
+  "item.nexus.diamond_upgrade": "Diamond Upgrade",
+  "item.nexus.emerald_upgrade": "Emerald Upgrade",
+  "item.nexus.gold_upgrade": "Gold Upgrade",
+  "item.nexus.iron_upgrade": "Iron Upgrade",
+  "item.nexus.netherite_upgrade": "Netherite Upgrade",
   "item.nexus.storage_drive": "Storage Drive",
   "itemGroup.nexus": "Nexus"
 }
